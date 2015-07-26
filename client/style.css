@@ -1,0 +1,7 @@
+ul li.channel {
+	list-style-type: square;
+}
+
+ul li.user {
+	list-style-type: none;
+}

@@ -1,0 +1,77 @@
+<html>
+	<head>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<div id="connectTo">
+			<table>
+				<tr>
+					<td>Server</td>
+					<td><input type="text" id="server"/></td>
+				</tr>
+				<tr>
+					<td>Port</td>
+					<td><input type="text" id="port"/></td>
+				</tr>
+				<tr>
+					<td>Benutzername</td>
+					<td><input type="text" id="username"/></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="submit" value="Betreten" id="submit"/></td>
+				</tr>
+			</table>
+		</div>
+
+		<div id="mumble">
+			<ul id="channels">
+				<li class="channel">channel</li>
+				<li class="user">user</li>
+				<li class="channel">channel</li>
+			</ul>
+			<div id="messages">
+			</div>
+		</div>
+
+		<script>
+			function buildChannelHTML(channel){
+				var html = "<li class=\"channel\">" + channel.name + "<ul>";
+				for(var i = 0; i < channel.users.length; i++){
+					html += "<li class=\"user\">" + channel.users[i] + "</li>";
+				}
+				for(var i = 0; i < channel.children.length; i++){
+					html += buildChannelHTML(channel.children[i]);
+				}
+				html += "</ul></li>"
+				return html;
+			}
+			$(function(){
+				var socket = io();
+				socket.on("mumble-error", function(error){
+					console.log(error);
+				});
+				socket.on("joinedServer", function(channels){
+					var html = buildChannelHTML(channels.children[0]);
+					$("#channels").html(html);
+					$(".channel").click(function(event){
+						console.log("clicked: " + $(this).text());
+						//socket.emit("joinChannel", $(this).text());
+					});
+				});
+				$("#submit").click(function(event){
+					console.log("Connecting...");
+					$("#connectTo").hide();
+					$("#mumble").show();
+					socket.emit("joinServer", {
+						server: $("#server").val(),
+						port: $("#port").val(),
+						username: $("#username").val(),
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
