@@ -3,6 +3,7 @@ var Mumble = require("mumble");
 var Client = function(socket){
 	this.socket = socket;
 	this.socket.on("joinServer", this.connect.bind(this));
+	this.socket.on("joinChannel", this.joinChannel.bind(this));
 }
 
 Client.prototype = {
@@ -35,6 +36,12 @@ Client.prototype = {
 
 	},
 
+	joinChannel: function(channel){
+		path = channel.split("/");
+		this.mumble.connection.joinPath(path);
+		this.socket.emit("channelJoined", channel);
+	},
+	
 	retreiveChannels: function(){
 		var channelList = {children:[]};
 		var channelsToProcess = [{channel: this.mumble.rootChannel, parent: channelList}];
