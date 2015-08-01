@@ -37,48 +37,18 @@
 		</div>
 
 		<script>
-			function buildChannelHTML(channel, path){
-				if(path === undefined){
-					path = "";
-				}
-				path += "/" + channel.name;
-				
-				var html = "<li class=\"channel\" + id=\"" + path + "\">" + channel.name + "<ul>";
-				for(var i = 0; i < channel.users.length; i++){
-					html += "<li class=\"user\" id=\"" + channel.users[i] + "\">" + channel.users[i] + "</li>";
-				}
-				for(var i = 0; i < channel.children.length; i++){
-					html += buildChannelHTML(channel.children[i], path);
-				}
-				html += "</ul></li>"
-				return html;
-			}
+			
 			$(function(){
 				var socket = io();
-				socket.on("mumble-error", function(error){
-					console.log(error);
-				});
-				socket.on("joinedServer", function(channels){
-					var html = buildChannelHTML(channels.children[0]);
-					$("#channels").html(html);
-					$(".channel").click(function(event){
-						socket.emit("joinChannel", this.id);
-						return false;
-					});
-				});
-				socket.on("joinedChannel", function(channel){
-					
-				});
+				var client = new Client(socket, $("#channels"), $("#messages"));
+				
 				$("#submit").click(function(event){
 					console.log("Connecting...");
 					$("#connectTo").hide();
 					$("#mumble").show();
-					socket.emit("joinServer", {
-						server: $("#server").val(),
-						port: $("#port").val(),
-						username: $("#username").val(),
-					});
+					client.joinServer($("#server").val(), $("#port").val(), $("#username").val());
 				});
+				
 			});
 		</script>
 	</body>

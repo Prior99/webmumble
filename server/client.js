@@ -45,11 +45,11 @@ Client.prototype = {
 	retreiveChannels: function(){
 		var channelList = {children:[]};
 		var channelsToProcess = [{channel: this.mumble.rootChannel, parent: channelList}];
-		var channel, parent;
+		var channelInfo, channel, parent;
 		while(channelsToProcess.length !== 0){
-			channel = channelsToProcess.shift();
+			channelInfo = channelsToProcess.shift();
 			parent = channel.parent;
-			channel = channel.channel;
+			channel = channelInfo.channel;
 
 			var users = []
 			for(var i = 0; i < channel.users.length; i++){
