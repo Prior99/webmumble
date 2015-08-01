@@ -17,6 +17,7 @@ Client.prototype = {
 				try{
 					connection.authenticate(args.username, "");
 					this.server = args;
+					this.initMumbleEvents();
 				}
 				catch(e){
 					console.error(e);
@@ -109,6 +110,30 @@ Client.prototype = {
 		}
 		//console.log(channelList.children[0]);
 		return channelList.children[0];
+	},
+	
+	initMumbleEvents: function(){
+		this.mumble.on("user-connect", function(user){
+			this.socket.emit("user-connect",{
+				name: user.name
+			}.bind(this));
+		});
+		this.mumble.on("user-move", function(user, oldChannel, newChannel){
+			this.socket.on("user-move", {
+				user: {
+					name: user.name,
+					oldChannel: this.getChannelPath(oldChannel),
+					newChannel: this.getChannelPath(newChannel)
+				}
+			})
+		}.bind(this));
+		this.mumble.on("user-disconnect", function(user){
+			this.socket.emit("user-disconnect", user.name);
+		}.bind(this));
+	},
+	
+	getChannelPath: function(channel){
+		
 	}
 };
 
