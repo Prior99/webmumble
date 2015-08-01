@@ -3,10 +3,11 @@ var Client = function(socket, channelView, messageView){
 		channel: channelView,
 		message: messageView
 	};
+	this.socket = socket;
 	
-	socket.on("mumble-error", this.eventHandler.onError.bind(this));
-	socket.on("joinedServer", this.eventHandler.onServerJoined.bind(this));
-	socket.on("joinedChannel", this.eventHandler.onChannelJoined.bind(this));
+	this.socket.on("mumble-error", this.eventHandler.onError.bind(this));
+	this.socket.on("joinedServer", this.eventHandler.onServerJoined.bind(this));
+	this.socket.on("channelJoined", this.eventHandler.onChannelJoined.bind(this));
 };
 
 Client.prototype = {
@@ -16,10 +17,10 @@ Client.prototype = {
 			port: port,
 			username: username,
 		};
-		socket.emit("joinServer", this.serverInfo);
+		this.socket.emit("joinServer", this.serverInfo);
 	},
 	joinChannel: function(path){
-		socket.emit("joinChannel", path);
+		this.socket.emit("joinChannel", path);
 	},
 	
 	eventHandler: {
@@ -28,18 +29,49 @@ Client.prototype = {
 		},
 		onServerJoined: function(channels){
 			this.channels = channels;
-			this.currentChannel = this.findUser(this.serverInfo.username);
+			this.user = this.findUser(this.serverInfo.username);
 			
 			var html = this.buildChannelHTML(this.channels);
-			this.views.channel.html(html);
+			this.views.channel.html("");
+			this.views.channel.append(html);
 			
 			$(".channel").click(function(event){
-				this.joinChannel(this.id);
+				this.joinChannel(event.toElement.id);
 				return false;
-			});
+			}.bind(this));
+			$(".user").click(function(event){
+				console.log("Clicked User: " + event.toElement.id);
+				return false;
+			}.bind(this));
 		},
 		onChannelJoined: function(channel){
-			
+			console.log("Joined Channel: " + channel);
+			path = channel.split("/");
+			while(path[0] === ""){
+				path.shift();
+			}
+			if(path[0] !== this.channels.name){
+				throw new Error("Channel does not exist: " + channel);
+			}
+			var currentChannel = this.channels;
+			for(var i = 1; i < path.length; i++){
+				if(path[i] === ""){
+					continue;
+				}
+				var found = false;
+				for(var j = 0; j < currentChannel.children.length; j++){
+					if(currentChannel.children[j].name === path[i]){
+						currentChannel = currentChannel.children[j];
+						found = true;
+						break;
+					}
+				}
+				if(! found){
+					throw new Error("Channel does not exist: " + channel);
+				}
+			}
+			var userElem = this.user.user.html.detach();
+			currentChannel.userList.append(userElem);
 		}
 	},
 	
@@ -48,13 +80,16 @@ Client.prototype = {
 		var channel;
 		while(channelsToProcess.length !== 0){
 			channel = channelsToProcess.shift();
-			if(channel.users.indexOf(username) !== -1){
-				return channel;
-			}
-			else{
-				for(var i = 0; i < channel.children.length; i++){
-					channelsToProcess.push(channel.children[i]);
+			for(var i = 0; i < channel.users.length; i++){
+				if(channel.users[i].name === username){
+					return {
+						channel: channel,
+						user: channel.users[i]
+					};
 				}
+			}
+			for(var i = 0; i < channel.children.length; i++){
+				channelsToProcess.push(channel.children[i]);
 			}
 		}
 		return undefined;
@@ -65,14 +100,33 @@ Client.prototype = {
 		}
 		path += "/" + channel.name;
 		
-		var html = "<li class=\"channel\" + id=\"" + path + "\">" + channel.name + "<ul>";
+		var html = $("<li></li>", {
+			id: path,
+			"class": "channel",
+			text: channel.name
+		});
+		
+		var userList = $("<ul></ul>");
 		for(var i = 0; i < channel.users.length; i++){
-			html += "<li class=\"user\" id=\"" + channel.users[i] + "\">" + channel.users[i] + "</li>";
+			var user = $("<li></li>", {
+				id: channel.users[i].name,
+				"class": "user",
+				text: channel.users[i].name
+			});
+			channel.users[i].html = user;
+			user.appendTo(userList);
 		}
+		channel.userList = userList;
+		userList.appendTo(html);
+		
+		var subChannelList = $("<ul><ul>");
 		for(var i = 0; i < channel.children.length; i++){
-			html += buildChannelHTML(channel.children[i], path);
+			this.buildChannelHTML(channel.children[i], path).appendTo(subChannelList);
 		}
-		html += "</ul></li>"
+		channel.channelList = subChannelList;
+		subChannelList.appendTo(html);
+		
+		channel.html = html;
 		return html;
 	}
 };
