@@ -16,6 +16,10 @@ app.get("/style.css", function(req, res){
     res.sendFile(__dirname + "/client/style.css");
 });
 
+app.get("/*.js", function(req, res){
+	res.sendFile(__dirname + "/client/js/" + req.params[0] + ".js");
+});
+
 io.on("connection", function(socket){
     console.log("Client connected");
     clients.push(new Client(socket));
