@@ -48,7 +48,7 @@ Client.prototype = {
 		var channelInfo, channel, parent;
 		while(channelsToProcess.length !== 0){
 			channelInfo = channelsToProcess.shift();
-			parent = channel.parent;
+			parent = channelInfo.parent;
 			channel = channelInfo.channel;
 
 			var users = []
@@ -70,8 +70,8 @@ Client.prototype = {
 				}
 			}
 		}
-		console.log(channelList);
-		return channelList;
+		//console.log(channelList.children[0]);
+		return channelList.children[0];
 	}
 };
 
