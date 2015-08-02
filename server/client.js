@@ -44,6 +44,7 @@ Client.prototype = {
 			path.shift();
 		}
 		if(path[0] !== this.mumble.rootChannel.name){
+			console.err("Joining non existent channel \"" + channel + "\"!");
 			this.socket.emit("mumble-error", {
 				reason: "Channel does not exist",
 				responseTo: "joinChannel",
@@ -114,26 +115,33 @@ Client.prototype = {
 	
 	initMumbleEvents: function(){
 		this.mumble.on("user-connect", function(user){
+			console.log("User " + user.name + " connected");
 			this.socket.emit("user-connect",{
 				name: user.name
-			}.bind(this));
-		});
+			});
+		}.bind(this));
 		this.mumble.on("user-move", function(user, oldChannel, newChannel){
+			console.log("User " + user.name + " moved from " + oldChannel.name + " to " + newChannel.name);
 			this.socket.emit("user-move", {
-				user: {
-					name: user.name,
-					oldChannel: this.getChannelPath(oldChannel),
-					newChannel: this.getChannelPath(newChannel)
-				}
-			})
+				user: user.name,
+				oldChannel: this.getChannelPath(oldChannel),
+				newChannel: this.getChannelPath(newChannel)
+			});
 		}.bind(this));
 		this.mumble.on("user-disconnect", function(user){
+			console.log("User " + user.name + " disconnected");
 			this.socket.emit("user-disconnect", user.name);
 		}.bind(this));
 	},
 	
 	getChannelPath: function(channel){
-		
+		var path = [];
+		var currentChannel = channel;
+		while(currentChannel !== undefined){
+			path.unshift(currentChannel.name);
+			currentChannel = currentChannel.parent;
+		}
+		return "/" + path.join("/");
 	}
 };
 

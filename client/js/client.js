@@ -1,4 +1,6 @@
 var ChannelTree = require("./channelTree");
+var User = require("./user");
+var Channel = require("./channel");
 
 var Client = function(socket, channelView, messageView){
 	this.views = {
@@ -9,7 +11,9 @@ var Client = function(socket, channelView, messageView){
 	
 	this.socket.on("mumble-error", this.eventHandler.onError.bind(this));
 	this.socket.on("joinedServer", this.eventHandler.onServerJoined.bind(this));
-	this.socket.on("channelJoined", this.eventHandler.onChannelJoined.bind(this));
+	
+	this.initMumbleEvents();
+	// this.socket.on("channelJoined", this.eventHandler.onChannelJoined.bind(this));
 };
 
 Client.prototype = {
@@ -30,17 +34,18 @@ Client.prototype = {
 			console.log(error);
 		},
 		onServerJoined: function(channels){
-			this.channelTree = new ChannelTree(channels);
+			this.channelTree = new ChannelTree(new Channel(channels));
+			
+			var html = this.channelTree.rootChannel.html;
+			this.views.channel.html("");
+			this.views.channel.append(html);
+			
 			this.channelTree.findUser(this.serverInfo.username, function(user,channel){
 				this.user = {
 					user: user,
 					channel: channel
 				};
 			}.bind(this));
-			
-			var html = this.channelTree.buildChannelHTML();
-			this.views.channel.html("");
-			this.views.channel.append(html);
 			
 			$(".channel").click(function(event){
 				this.joinChannel(event.toElement.id);
@@ -51,11 +56,32 @@ Client.prototype = {
 				return false;
 			}.bind(this));
 		},
-		onChannelJoined: function(channel){
-			//console.log("Joined Channel: " + channel);
-			var userElem = this.user.user.html.detach();
-			this.channelTree.findChannelByPath(channel).userList.append(userElem);
+		// onChannelJoined: function(channel){
+			// console.log("Joined Channel: " + channel);
+			// this.channelTree.moveUser(this.serverInfo.username, channel);
+		// },
+		onUserConnect: function(user){
+			console.log("User " + user.name + " joined");
+			this.channelTree.rootChannel.addUser(new User(user));
+		},
+		onUserMove: function(args){
+			console.log(args);
+			console.log("User " + args.user + " moved from " + args.oldChannel + " to " + args.newChannel);
+			this.channelTree.moveUser(args.user, args.newChannel);
+		},
+		onUserDisconnect: function(user){
+			console.log("User " + user + " disconnected");
+			this.channelTree.findUser(user, function(user, channel){
+				console.log("\t User found");
+				channel.removeUser(user);
+			});
 		}
+	},
+	
+	initMumbleEvents: function(){
+		this.socket.on("user-connect", this.eventHandler.onUserConnect.bind(this));
+		this.socket.on("user-move", this.eventHandler.onUserMove.bind(this));
+		this.socket.on("user-disconnect", this.eventHandler.onUserDisconnect.bind(this));
 	}
 };
 

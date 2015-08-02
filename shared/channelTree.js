@@ -1,5 +1,5 @@
 var ChannelTree = function(tree){
-	this.channels = tree;
+	this.rootChannel = tree;
 }
 
 ChannelTree.prototype = {
@@ -23,7 +23,7 @@ ChannelTree.prototype = {
 	 */
 	traverseChannels: function(todo, root){
 		var channelsToProcess = [{
-			channel: root === undefined? this.channels: root
+			channel: root === undefined? this.rootChannel: root
 		}];
 		while(channelsToProcess.length !== 0){
 			var channelInfo = channelsToProcess.shift();
@@ -40,8 +40,8 @@ ChannelTree.prototype = {
 					});
 				}
 			}
-			return false;
 		}
+		return false;
 	},
 	
 	/**
@@ -113,10 +113,10 @@ ChannelTree.prototype = {
 		while(path[0] === ""){
 			path.shift();
 		}
-		if(path[0] !== this.channels.name){
+		if(path[0] !== this.rootChannel.name){
 			throw new Error("Channel does not exist: " + channel);
 		}
-		var currentChannel = this.channels;
+		var currentChannel = this.rootChannel;
 		for(var i = 1; i < path.length; i++){
 			if(path[i] === ""){
 				continue;
