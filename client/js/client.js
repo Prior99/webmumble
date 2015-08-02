@@ -1,3 +1,5 @@
+var ChannelTree = require("./channelTree");
+
 var Client = function(socket, channelView, messageView){
 	this.views = {
 		channel: channelView,
@@ -56,3 +58,5 @@ Client.prototype = {
 		}
 	}
 };
+
+module.exports = Client;

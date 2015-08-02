@@ -4,9 +4,7 @@
 		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 		<link rel="stylesheet" type="text/css" href="style.css">
 		
-		<script src="shared/channelTree.js"></script>
-		<script src="client/channelTree.js"></script>
-		<script src="client/client.js"></script>
+		<script src="../dist/webmumble.js"></script>
 	</head>
 	<body>
 		<div id="connectTo">
@@ -41,7 +39,7 @@
 		</div>
 
 		<script>
-			
+		var Client = require("Client");
 			$(function(){
 				var socket = io();
 				var client = new Client(socket, $("#channels"), $("#messages"));

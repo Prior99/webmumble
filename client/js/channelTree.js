@@ -1,3 +1,5 @@
+var ChannelTree = require("../../shared/channelTree");
+
 /**
  * Builds html for displaying the channel tree on basis of <ul>
  * 	@params
@@ -88,3 +90,5 @@ ChannelTree.prototype.addUser = function(user, channel){
 	user.html = user.generateUserElement(user);
 	channel.userList.attach(user.html);
 }
+
+module.exports = ChannelTree;

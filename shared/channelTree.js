@@ -137,8 +137,4 @@ ChannelTree.prototype = {
 	}
 };
 
-
-// for sharing this code between node and the browser
-if(typeof module !== "undefined"){
-	module.exports = ChannelTree;
-}
+module.exports = ChannelTree;
