@@ -29,7 +29,12 @@ Client.prototype = {
 		},
 		onServerJoined: function(channels){
 			this.channelTree = new ChannelTree(channels);
-			this.user = this.findUser(this.serverInfo.username);
+			this.channelTree.findUser(this.serverInfo.username, function(user,channel){
+				this.user = {
+					user: user,
+					channel: channel
+				};
+			}.bind(this));
 			
 			var html = this.channelTree.buildChannelHTML();
 			this.views.channel.html("");
@@ -47,7 +52,7 @@ Client.prototype = {
 		onChannelJoined: function(channel){
 			//console.log("Joined Channel: " + channel);
 			var userElem = this.user.user.html.detach();
-			this.findChannelByPath(channel).userList.append(userElem);
+			this.channelTree.findChannelByPath(channel).userList.append(userElem);
 		}
 	}
 };

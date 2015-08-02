@@ -65,7 +65,7 @@ ChannelTree.prototype.generateChannelElement = function(channel, path){
 		id: path,
 		"class": "channel",
 		text: channel.name
-	};
+	});
 };
 
 /**
@@ -76,7 +76,7 @@ ChannelTree.prototype.generateChannelElement = function(channel, path){
  *	@return
  *		undefined
  */
-ChannelTree.prototype.addUser: function(user, channel){
+ChannelTree.prototype.addUser = function(user, channel){
 	if(channel === undefined){
 		channel = this.channels;
 	}

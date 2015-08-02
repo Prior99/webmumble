@@ -119,7 +119,7 @@ Client.prototype = {
 			}.bind(this));
 		});
 		this.mumble.on("user-move", function(user, oldChannel, newChannel){
-			this.socket.on("user-move", {
+			this.socket.emit("user-move", {
 				user: {
 					name: user.name,
 					oldChannel: this.getChannelPath(oldChannel),

@@ -63,9 +63,9 @@ ChannelTree.prototype = {
 	 *		false - when traversing finishes uninterrupted
 	 */
 	traverseUsers: function(todo, root){
-		return this.traverseChannel(function(channel){
+		return this.traverseChannels(function(channel){
 			for(var i = 0; i < channel.users.length; i++){
-				if(todo(user, channel)){
+				if(todo(channel.users[i], channel)){
 					return true;
 				}
 			}
@@ -87,7 +87,7 @@ ChannelTree.prototype = {
 	 *		undefined
 	 */
 	findUser: function(username, todo){
-		var found = traverseUsers(function(user, channel){
+		var found = this.traverseUsers(function(user, channel){
 			if(user.name === username){
 				todo(user, channel);
 				return true;
@@ -135,10 +135,10 @@ ChannelTree.prototype = {
 		}
 		return currentChannel;
 	}
-}
+};
 
 
 // for sharing this code between node and the browser
-if(module !== undefined){
+if(typeof module !== "undefined"){
 	module.exports = ChannelTree;
 }
