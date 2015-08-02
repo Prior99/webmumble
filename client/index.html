@@ -42,15 +42,15 @@
 		var Client = require("Client");
 			$(function(){
 				var socket = io();
-				var client = new Client(socket, $("#channels"), $("#messages"));
-				
-				$("#submit").click(function(event){
-					console.log("Connecting...");
-					$("#connectTo").hide();
-					$("#mumble").show();
-					client.joinServer($("#server").val(), $("#port").val(), $("#username").val());
+				var audioSocket = io();
+				var client = new Client(socket, audioSocket, $("#channels"), $("#messages"), function(){
+					$("#submit").click(function(event){
+						console.log("Connecting...");
+						$("#connectTo").hide();
+						$("#mumble").show();
+						client.joinServer($("#server").val(), $("#port").val(), $("#username").val());
+					});
 				});
-				
 			});
 		</script>
 	</body>

@@ -2,15 +2,20 @@ var ChannelTree = require("./channelTree");
 var User = require("./user");
 var Channel = require("./channel");
 
-var Client = function(socket, channelView, messageView){
+var Client = function(socket, audioSocket, channelView, messageView, ready){
 	this.views = {
 		channel: channelView,
 		message: messageView
 	};
 	this.socket = socket;
+	this.audioSocket = audioSocket;
+	
+	this.ready = ready;
+	this.socket.emit("requestTag");
 	
 	this.socket.on("mumble-error", this.eventHandler.onError.bind(this));
 	this.socket.on("joinedServer", this.eventHandler.onServerJoined.bind(this));
+	this.socket.on("tag", this.eventHandler.onTag.bind(this));
 	
 	this.initMumbleEvents();
 	// this.socket.on("channelJoined", this.eventHandler.onChannelJoined.bind(this));
@@ -33,8 +38,16 @@ Client.prototype = {
 		onError: function(error){
 			console.log(error);
 		},
-		onServerJoined: function(channels){
-			this.channelTree = new ChannelTree(new Channel(channels));
+		onTag: function(tag){
+			this.tag = tag;
+			this.audioSocket.emit("showTag", this.tag);
+			if(this.ready !== undefined){
+				this.ready();
+				this.ready = undefined;
+			}
+		},
+		onServerJoined: function(args){
+			this.channelTree = new ChannelTree(new Channel(args.channels));
 			
 			var html = this.channelTree.rootChannel.html;
 			this.views.channel.html("");

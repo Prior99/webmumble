@@ -1,12 +1,16 @@
 var Mumble = require("mumble");
 
-var Client = function(socket){
+var Client = function(socket, clients){
 	this.socket = socket;
 	this.socket.on("joinServer", this.connect.bind(this));
 	this.socket.on("joinChannel", this.joinChannel.bind(this));
 }
 
 Client.prototype = {
+	assignAudioSocket: function(socket){
+		this.audioSocket = socket;
+		//TODO: pipe audio;
+	},
 	connect: function(args){
 		console.log("Connecting to: "  + args.server + ":" + args.port + " as " + args.username);
 		Mumble.connect("mumble://" + args.server + ":" + args.port, {}, function(error, connection){
@@ -31,7 +35,9 @@ Client.prototype = {
 	},
 
 	onInit: function(){
-		this.socket.emit("joinedServer", this.retreiveChannels());
+		this.socket.emit("joinedServer", {
+			channels: this.retreiveChannels()
+		});
 	},
 
 	onVoice: function(event){

@@ -5,7 +5,8 @@ var Client = require("./server/client.js");
 
 var config = require("./config.json");
 
-var clients = [];
+var num = 0;
+var clients = {};
 
 app.get("/", function(req, res){
     // console.log(req.query);
@@ -30,7 +31,17 @@ app.get("/dist/*.js", function(req, res){
 
 io.on("connection", function(socket){
     console.log("Client connected");
-    clients.push(new Client(socket));
+	socket.on("requestTag", function(){
+		var tag = num;
+		clients[tag] =  new Client(socket);
+		socket.emit("tag", tag);
+		num++;
+		console.log("Handed out tag " + tag);
+	});
+	socket.on("showTag", function(tag){
+		clients[tag].assignAudioSocket(socket);
+		console.log("AudioSocket registered for tag " + tag);
+	})
 });
 
 http.listen(config.siteport, function(){
