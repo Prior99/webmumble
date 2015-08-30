@@ -2,15 +2,25 @@ var ChannelTree = require("./channelTree");
 var User = require("./user");
 var Channel = require("./channel");
 
-var Client = function(socket, audioSocket, channelView, messageView, ready){
+
+function hasGetUserMedia() {
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+  return !!navigator.getUserMedia;
+}
+
+var Client = function(sockets, htmlElements, ready){
 	this.views = {
-		channel: channelView,
-		message: messageView
+		channel: htmlElements.channels,
+		message: htmlElements.messages
 	};
-	this.socket = socket;
-	this.audioSocket = audioSocket;
+	this.audio = {
+		output: htmlElements.audioOut,
+		input: htmlElements.audioIn
+	};
+	this.socket = sockets.messages;
+	this.audioSocket = sockets.audio;
 	
-	this.ready = ready;
+	this.ready = [ready];
 	this.socket.emit("requestTag");
 	
 	this.socket.on("mumble-error", this.eventHandler.onError.bind(this));
@@ -42,11 +52,52 @@ Client.prototype = {
 			this.tag = tag;
 			this.audioSocket.emit("showTag", this.tag);
 			if(this.ready !== undefined){
-				this.ready();
+				for(var handler in this.ready){
+					this.ready[handler]();
+				}
 				this.ready = undefined;
 			}
 		},
 		onServerJoined: function(args){
+			var startAudio = function(){
+				this.audio.output.src = "http://" + window.location.host+ "/audio/" + this.tag;
+				this.audio.output.play();
+				
+				if(hasGetUserMedia()){
+					navigator.getUserMedia({
+						audio: true
+					}, function(stream){
+						this.audio.context = new AudioContext();
+						this.audio.input = this.audio.context.createMediaStreamSource(stream);
+						console.log(this.audio.context);
+						console.log(this.audio.input);
+						
+						var streamer = this.audio.context.createScriptProcessor(0, 1, 1);
+						streamer.onaudioprocess = function(event){
+							this.audioSocket.emit("record", event.inputBuffer.getChannelData(0));
+						}.bind(this);
+						
+						this.audio.input.connect(streamer);
+						streamer.connect(this.audio.context.destination);
+						
+						stream.onactive = function() {
+							console.log("aktive");
+						}.bind(this);
+						stream.oninactive = function(){
+							console.log("inactive");
+						}
+					}.bind(this), function(err){
+						throw err;
+					});
+				}
+			}.bind(this);
+			if(this.tag !== undefined){
+				startAudio();
+			}
+			else{
+				this.ready.push(startAudio);
+			}
+			
 			this.channelTree = new ChannelTree(new Channel(args.channels));
 			
 			var html = this.channelTree.rootChannel.html;

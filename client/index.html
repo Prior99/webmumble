@@ -29,6 +29,7 @@
 		</div>
 
 		<div id="mumble">
+			<audio id="audioOut" autoplay> Audio is not yet supported by your browser!"</audio>
 			<ul id="channels">
 				<li class="channel">channel</li>
 				<li class="user">user</li>
@@ -39,15 +40,36 @@
 		</div>
 
 		<script>
-		var Client = require("Client");
+			var Client = require("Client");
+			
+			function setGUI(connected){
+				if(connected){
+					$("#connectTo").hide();
+					$("#mumble").show();
+				}
+				else{
+					$("#connectTo").show();
+					$("#mumble").hide();
+				}
+			}
+			
 			$(function(){
+				setGUI(false);
+				
 				var socket = io();
 				var audioSocket = io();
-				var client = new Client(socket, audioSocket, $("#channels"), $("#messages"), function(){
+				
+				var client = new Client({
+					messages: socket,
+					audio: audioSocket
+				}, {
+					channels: $("#channels"), 
+					messages: $("#messages"),
+					audioOut: $("#audioOut")[0]
+				}, function(){
 					$("#submit").click(function(event){
 						console.log("Connecting...");
-						$("#connectTo").hide();
-						$("#mumble").show();
+						setGUI(true);
 						client.joinServer($("#server").val(), $("#port").val(), $("#username").val());
 					});
 				});

@@ -27,7 +27,17 @@ app.get("/style.css", function(req, res){
 
 app.get("/dist/*.js", function(req, res){
 	res.sendFile(__dirname + "/dist/" + req.params[0] + ".js");
-})
+});
+
+app.get("/audio/*", function(req, res){
+	var client = clients[req.params[0]];
+	if(client === undefined){
+		res.sendFile(__dirname + "/client/invalidSession.html");
+	}
+	else{
+		client.serveAudioOutputRequest(res);
+	}
+});
 
 io.on("connection", function(socket){
     console.log("Client connected");

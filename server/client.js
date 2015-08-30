@@ -1,15 +1,41 @@
 var Mumble = require("mumble");
+var Lame = require("lame");
+var FS = require("fs");
 
 var Client = function(socket, clients){
 	this.socket = socket;
 	this.socket.on("joinServer", this.connect.bind(this));
 	this.socket.on("joinChannel", this.joinChannel.bind(this));
+	
+	this.encoder = new Lame.Encoder({
+		// input
+		channels: 1,
+		bitDepth: 16,
+		sampleRate: 48000,
+
+		// output
+		bitRate: 128,
+		outSampleRate: 48000,
+		mode: Lame.MONO // STEREO (default), JOINTSTEREO, DUALCHANNEL or MONO
+	});
 }
 
 Client.prototype = {
 	assignAudioSocket: function(socket){
 		this.audioSocket = socket;
+		
+		this.audioSocket.on("record", function(stream){
+			console.log("stream: " + stream.length);
+		})
 		//TODO: pipe audio;
+	},
+	serveAudioOutputRequest : function(stream){
+		this.streamToClient = stream;
+		// console.log("huhu");
+		// this.mumble.connection.outputStream(undefined, true).pipe(new FS.WriteStream(this.tag + ".pcm"));
+		this.mumble.connection.outputStream(true).pipe(this.encoder);
+		this.encoder.pipe(stream);
+		// this.encoder.pipe(new FS.WriteStream(this.tag + ".mp3"));
 	},
 	connect: function(args){
 		console.log("Connecting to: "  + args.server + ":" + args.port + " as " + args.username);
@@ -41,7 +67,10 @@ Client.prototype = {
 	},
 
 	onVoice: function(event){
-
+		// console.log(event);
+		// event.pipe(this.encoder);
+		//this.encoder.pipe(this.streamToClient);
+		// this.encoder.pipe(new FS.WriteStream("test.mp3"));
 	},
 
 	joinChannel: function(channel){
@@ -50,7 +79,7 @@ Client.prototype = {
 			path.shift();
 		}
 		if(path[0] !== this.mumble.rootChannel.name){
-			console.err("Joining non existent channel \"" + channel + "\"!");
+			console.error("Joining non existent channel \"" + channel + "\"!");
 			this.socket.emit("mumble-error", {
 				reason: "Channel does not exist",
 				responseTo: "joinChannel",
