@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 		browserify: {
 			dist:{
 				files: {
-					"dist/webmumble.js": ["./client/js/*.js", "./shared/*.js"]
+					"dist/webmumble.js": ["./client/js/*.js", "./shared/*.js"],
 				},
 				options: {
 					"require": ["./client/js/client.js:Client"]
@@ -11,8 +11,8 @@ module.exports = function(grunt) {
 			}
 		}
 	});
-	
+
 	grunt.loadNpmTasks('grunt-browserify');
-	
+
 	grunt.registerTask("default", ["browserify"]);
 };
