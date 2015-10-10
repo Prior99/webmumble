@@ -28,16 +28,20 @@ function mediaAcquired(stream){
 	 * Microphone -> WebsocketSinkNode -> Server
 	 */
  	var bufferSize = 512;
-	var encoder = new Worker("opusencoder.js");
+	var encoder = new Worker("workers/encoder/encoder.js");
 	encoder.postMessage({
 		command : 'init',
 		outputSampleRate : 48000,
-		inputSampleRate : context.sampleRate,
-		keepFrames : 4
+		inputSampleRate : context.sampleRate
 	});
 	encoder.addEventListener('message', function(e) {
-		var buffer = e.data;
-		ws.send(buffer);
+		var obj = e.data;
+		if(obj.type === 'error') {
+			console.error(obj.error);
+		}
+		else if(obj.type === 'packet') {
+			ws.send(obj.packet);
+		}
 	});
 	var input = context.createMediaStreamSource(stream);
 	window.input = input; //Make sure garbage collector doesn't kill us.
