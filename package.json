@@ -4,9 +4,9 @@
   "description": "Webclient for connecting to any mumble server",
   "dependencies": {
     "express": "^4.13.1",
-    "lame": "^1.2.2",
     "mumble": "^0.3.4",
-    "node-samplerate": "git+https://git.cronosx.de/prior/node-samplerate.git",
+    "node-opus": "^0.1.11",
+    "ogg": "^1.2.1",
     "socket.io": "^1.3.6",
     "ws": "^0.8.0"
   },

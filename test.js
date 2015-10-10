@@ -47,11 +47,19 @@ function mumbleUp(connection) {
 	function setupBrowserToMumble(ws) {
 		var rate = 48000;
 		var frameSize = rate / 200;
-		var opus = new Opus.OpusEncoder(rate);
-
+		var oggDecoder = new Ogg.Decoder();
+		oggDecoder.on('stream', function (stream) {
+			var opus = new Opus.Decoder();
+			opus.on('format', function(format) {
+				console.log(format);
+				opus.pipe(mumbleInputStream);
+			});
+			opus.on('error', function(err) {
+				console.error(err);
+			})
+		});
 		ws.on('message', function(buffer) {
-			var decoded = opus.decode(buffer, frameSize);
-			mumbleInputStream.write(decoded);
+			oggDecoder.write(buffer);
 		});
 	}
 

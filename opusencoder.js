@@ -12,11 +12,9 @@ var errorCodes = {
 };
 
 this.onmessage = function(e) {
-console.log("FUKKIT");
 	var evt = e.data;
 	if(evt.command == 'init') {
 		var channels = 1;
-		console.log("CREATE FUCKING ENCOFER");
 		this.encoder = new Encoder({
 			sampleRate : evt.outputSampleRate,
 			channels : channels,
@@ -39,15 +37,16 @@ console.log("FUKKIT");
 }.bind(this);
 
 var Encoder = function(e, worker) {
-	console.log("yo");
 	this.ogg = new OggEncoder({
 		channels : this.channels,
-		sampleRate : this.sampleRate,
-		callback : function() {
-
-		}
+		sampleRate : this.sampleRate
 	});
-	console.log("ho");
+	this.ogg.callback = function() {
+		while(this.ogg.packets.length) {
+			worker.postMessage(this.ogg.packets.shift());
+		}
+	}.bind(this);
+
 	this.worker = worker;
 
 	this.keepFrames = e.keepFrames;
@@ -97,7 +96,7 @@ Encoder.prototype.encode = function(data, callback) {
 		}
 	}
 };
-
+/*
 Encoder.prototype.flush = function() {
 	var buffer = new Uint8Array(this.totalOutputLength);
 	var computed = 0;
@@ -108,4 +107,4 @@ Encoder.prototype.flush = function() {
 	}
 	this.totalOutputLength = 0;
 	this.worker.postMessage(buffer);
-}
+}*/

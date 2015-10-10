@@ -23,10 +23,11 @@ var OggOpusTagsPacket = function() {
 };
 
 var OggEncoder = function(obj) {
-	console.log("Oggencoder created");
 	this.packets = [];
 	this.number = 0;
-	this.callback = obj.callback();
+	if(obj.callback) {
+		this.callback = obj.callback;
+	}
 	this.granule = 0;
 	this.serialNumber = Math.floor(Math.random() * Math.pow(2, 32));
 	this.generateChecksumTable();
@@ -44,7 +45,6 @@ var OggEncoder = function(obj) {
 };
 
 OggEncoder.prototype.pushFrame = function(data) {
-	console.log("Oggencoder frame pushing...");
 	this.granule += data.length;
 	for(var index = 0; index < data.length;) {
 		var length = Math.min(data.length - index, 255);
@@ -77,7 +77,7 @@ OggEncoder.prototype.generateBinaryPacket = function() {
 	view.setUint8(2, 0x67);
 	view.setUint8(3, 0x4f);
 	view.setUint8(4, 0); //Version
-	view.setUint8(5, headerType); //Bitmask: 1 = continuation, 2 = BOS, 4 = EOS
+	view.setUint8(5, this.headerType); //Bitmask: 1 = continuation, 2 = BOS, 4 = EOS
 	view.setUint32(6, this.granulePosition, true);
 	if(this.granulePosition > 4294967296 || this.granulePosition < 0) { //If position had overflow
 		view.setUint32(10, Math.floor(this.granulePosition/4294967296), true);
@@ -85,8 +85,8 @@ OggEncoder.prototype.generateBinaryPacket = function() {
 	view.setUint32(14, this.serialNumber, true);
 	view.setUint32(18, this.number, true);
 	view.setUint8(26, this.segmentNumber, true);
-	buffer.set(this.segmentTable.subarray(0, this.segmentNumber), 27); //Segment Table
-	buffer.set(this.segmentData.subarray(0, this.dataIndex), 27 + this.segmentNumber); //Segment Data
+	byteBuffer.set(this.segmentTable.subarray(0, this.segmentNumber), 27); //Segment Table
+	byteBuffer.set(this.segmentData.subarray(0, this.dataIndex), 27 + this.segmentNumber); //Segment Data
 	view.setUint32(22, this.getChecksum(byteBuffer),true);
 	return buffer;
 };

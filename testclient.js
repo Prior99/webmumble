@@ -37,10 +37,7 @@ function mediaAcquired(stream){
 	});
 	encoder.addEventListener('message', function(e) {
 		var buffer = e.data;
-		//console.log(buffer);
-		//buffers.forEach(function(buffer) {
-			ws.send(buffer);
-		//});
+		ws.send(buffer);
 	});
 	var input = context.createMediaStreamSource(stream);
 	window.input = input; //Make sure garbage collector doesn't kill us.
