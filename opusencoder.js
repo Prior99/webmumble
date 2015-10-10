@@ -37,15 +37,6 @@ this.onmessage = function(e) {
 }.bind(this);
 
 var Encoder = function(e, worker) {
-	this.ogg = new OggEncoder({
-		channels : this.channels,
-		sampleRate : this.sampleRate
-	});
-	this.ogg.callback = function() {
-		while(this.ogg.packets.length) {
-			worker.postMessage(this.ogg.packets.shift());
-		}
-	}.bind(this);
 
 	this.worker = worker;
 
@@ -54,6 +45,16 @@ var Encoder = function(e, worker) {
 	this.channels = e.channels;
 	this.application = 2049;
 	this.frameSize = this.sampleRate / 100;
+
+	this.ogg = new OggEncoder({
+		channels : this.channels,
+		sampleRate : this.sampleRate,
+		callback : function(packets) {
+			while(packets.length) {
+				worker.postMessage(packets.shift());
+			}
+		}.bind(this)
+	});
 
 	var error = allocate(4, 'i32', ALLOC_STACK);
 	this._encoder = _opus_encoder_create(this.sampleRate, this.channels, this.application, error);

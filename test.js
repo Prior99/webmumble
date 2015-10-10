@@ -35,8 +35,8 @@ function mumbleUp(connection) {
 	});
 	wss.on('connection', handle)
 	console.log("Server running at http://" + IP + ":" + PORT + "/");
-	//var mumbleInputStream = FS.createWriteStream("decoded.pcm");
-	var mumbleInputStream = connection.inputStream();
+	var mumbleInputStream = FS.createWriteStream("encoded.pcm");
+	//var mumbleInputStream = connection.inputStream();
 	var websocketStreamInput = new PassThroughStream();
 	var websocketStreamOutput = new PassThroughStream();
 	var mumbleOutputStream = new PassThroughStream();
@@ -56,10 +56,12 @@ function mumbleUp(connection) {
 			});
 			opus.on('error', function(err) {
 				console.error(err);
-			})
+			});
+			stream.pipe(opus);
 		});
 		ws.on('message', function(buffer) {
 			oggDecoder.write(buffer);
+			//mumbleInputStream.write(buffer);
 		});
 	}
 

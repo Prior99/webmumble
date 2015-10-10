@@ -41,7 +41,9 @@ var OggEncoder = function(obj) {
 		channels : obj.channels,
 		sampleRate : obj.sampleRate
 	}));
+	this.flush();
 	this.pushFrame(OggOpusTagsPacket());
+	this.flush();
 };
 
 OggEncoder.prototype.pushFrame = function(data) {
@@ -51,20 +53,18 @@ OggEncoder.prototype.pushFrame = function(data) {
 		this.segmentTable[this.segmentNumber] = length;
 		this.segmentData.set(data.subarray(index, index + length), this.dataIndex);
 		this.dataIndex += length;
-		this.segmentNumber++;
 		index += length;
 		if(this.segmentNumber === 255) {
 			this.flush();
 		}
+		this.segmentNumber++;
 	}
+	this.flush();
 };
 
 OggEncoder.prototype.flush = function() {
 	if(this.segmentNumber !== 0) {
 		this.pushPacket();
-		this.segmentNumber = 0;
-		this.dataIndex = 0;
-		this.headerType = 0;
 	}
 };
 
@@ -72,10 +72,10 @@ OggEncoder.prototype.generateBinaryPacket = function() {
 	var buffer = new ArrayBuffer(27 + this.segmentNumber + this.dataIndex);
 	var view = new DataView(buffer); //5367674f
 	var byteBuffer = new Uint8Array(buffer);
-	view.setUint8(0, 0x53); //OggS
+	view.setUint8(0, 0x4f); //OggS
 	view.setUint8(1, 0x67);
 	view.setUint8(2, 0x67);
-	view.setUint8(3, 0x4f);
+	view.setUint8(3, 0x53);
 	view.setUint8(4, 0); //Version
 	view.setUint8(5, this.headerType); //Bitmask: 1 = continuation, 2 = BOS, 4 = EOS
 	view.setUint32(6, this.granulePosition, true);
@@ -84,20 +84,24 @@ OggEncoder.prototype.generateBinaryPacket = function() {
 	}
 	view.setUint32(14, this.serialNumber, true);
 	view.setUint32(18, this.number, true);
-	view.setUint8(26, this.segmentNumber, true);
+	view.setUint8(26, this.segmentNumber);
 	byteBuffer.set(this.segmentTable.subarray(0, this.segmentNumber), 27); //Segment Table
 	byteBuffer.set(this.segmentData.subarray(0, this.dataIndex), 27 + this.segmentNumber); //Segment Data
 	view.setUint32(22, this.getChecksum(byteBuffer),true);
+
+	this.segmentNumber = 0;
+	this.dataIndex = 0;
+	this.headerType = 0;
 	return buffer;
 };
 
 OggEncoder.prototype.pushPacket = function() {
 	var packet = this.generateBinaryPacket();
 	this.packets.push(packet);
-	console.log(packet);
+	//console.log(packet);
 	this.number++;
 	if(this.callback) {
-		this.callback();
+		this.callback(this.packets);
 	}
 };
 
