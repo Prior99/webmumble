@@ -6,15 +6,17 @@ var Mumble = require('mumble');
 var Sox = require('sox-audio');
 var PassThroughStream = require('stream').PassThrough;
 var FS = require('fs');
+var Opus = require('node-opus');
+var Ogg = require('ogg');
 /*
  * Constants
  */
 var PORT = 8081;
 var IP = "0.0.0.0";
-var MUMBLE_URL = "mymun.net"
-var MUMBLE_PASSWORD = "atomrofl";
+var MUMBLE_URL = "92k.de"
+var MUMBLE_PASSWORD = "";
 var MUMBLE_USER = "Webmumble_Test";
-var MUMBLE_CHANNEL = "The Moon";
+var MUMBLE_CHANNEL = "Flur (Öffentlich)";
 /*
  * Code
  */
@@ -33,7 +35,7 @@ function mumbleUp(connection) {
 	});
 	wss.on('connection', handle)
 	console.log("Server running at http://" + IP + ":" + PORT + "/");
-
+	//var mumbleInputStream = FS.createWriteStream("decoded.pcm");
 	var mumbleInputStream = connection.inputStream();
 	var websocketStreamInput = new PassThroughStream();
 	var websocketStreamOutput = new PassThroughStream();
@@ -43,21 +45,13 @@ function mumbleUp(connection) {
 	});
 
 	function setupBrowserToMumble(ws) {
-		var sox = new Sox(websocketStreamInput)
-			.inputSampleRate('44.1k')
-			.inputBits(32)
-			.inputChannels(1)
-			.inputFileType('raw')
-			.inputEncoding('floating-point')
-		var output = sox.output(mumbleInputStream)
-			.outputSampleRate('48k')
-			.outputEncoding('signed')
-			.outputBits(16)
-			.outputChannels(1)
-			.outputFileType('raw');
-		sox.run();
-		ws.on('message', function(data) {
-			websocketStreamInput.write(data);
+		var rate = 48000;
+		var frameSize = rate / 200;
+		var opus = new Opus.OpusEncoder(rate);
+
+		ws.on('message', function(buffer) {
+			var decoded = opus.decode(buffer, frameSize);
+			mumbleInputStream.write(decoded);
 		});
 	}
 

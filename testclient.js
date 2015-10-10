@@ -23,22 +23,39 @@ ws.onopen = function() {
 
 
 function mediaAcquired(stream){
+	var context = new AudioContext();
 	/*
 	 * Microphone -> WebsocketSinkNode -> Server
 	 */
-	var context = new AudioContext();
+ 	var bufferSize = 512;
+	var encoder = new Worker("opusencoder.js");
+	encoder.postMessage({
+		command : 'init',
+		outputSampleRate : 48000,
+		inputSampleRate : context.sampleRate,
+		keepFrames : 4
+	});
+	encoder.addEventListener('message', function(e) {
+		var buffer = e.data;
+		//console.log(buffer);
+		//buffers.forEach(function(buffer) {
+			ws.send(buffer);
+		//});
+	});
 	var input = context.createMediaStreamSource(stream);
 	window.input = input; //Make sure garbage collector doesn't kill us.
 	var webSocketSinkNode = context.createScriptProcessor(0, 1, 1);
 	webSocketSinkNode.onaudioprocess = function(e) {
-		ws.send(e.inputBuffer.getChannelData(0));
+		encoder.postMessage({
+			command : 'encode',
+			data : e.inputBuffer.getChannelData(0)
+		});
 	};
 	input.connect(webSocketSinkNode);
 	/*
 	 * Server -> WebsocketSourceNode -> Speaker
 	 */
 	var incoming = [];
-	var bufferSize = 8192;
 	var webSocketSourceNode = context.createScriptProcessor(bufferSize, 1, 1);
 	var voiceWasEnded = true;
 	ws.onmessage = function(message) {
@@ -54,7 +71,7 @@ function mediaAcquired(stream){
 		if(voiceWasEnded && incoming.length > 3) {
 			voiceWasEnded = false;
 		}
-		console.log(data.length / bufferSize, "buffers written. Modulo", data.length % bufferSize, "Now ", incoming.length, "in queue");
+		//console.log(data.length / bufferSize, "buffers written. Modulo", data.length % bufferSize, "Now ", incoming.length, "in queue");
 	};
 	webSocketSourceNode.onaudioprocess = function(e) {
 		if(incoming.length && !voiceWasEnded) {
@@ -64,7 +81,7 @@ function mediaAcquired(stream){
 		else {
 			voiceWasEnded = true;
 		}
-		console.log("Took elem from queue. Now" , incoming.length, "elements in queue");
+		//console.log("Took elem from queue. Now" , incoming.length, "elements in queue");
 	};
 	webSocketSourceNode.connect(context.destination);
 
