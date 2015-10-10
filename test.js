@@ -3,7 +3,6 @@
  */
 var WS = require('ws');
 var Mumble = require('mumble');
-var Sox = require('sox-audio');
 var PassThroughStream = require('stream').PassThrough;
 var FS = require('fs');
 var Opus = require('node-opus');
@@ -37,16 +36,17 @@ function mumbleUp(connection) {
 	console.log("Server running at http://" + IP + ":" + PORT + "/");
 	var mumbleInputStream = FS.createWriteStream("encoded.pcm");
 	//var mumbleInputStream = connection.inputStream();
-	var websocketStreamInput = new PassThroughStream();
 	var websocketStreamOutput = new PassThroughStream();
 	var mumbleOutputStream = new PassThroughStream();
 	connection.on("voice", function(data) {
 		mumbleOutputStream.write(data);
 	});
 
+	var rate = 48000;
+	var frameSize = rate / 200;
+	var channels = 1;
+
 	function setupBrowserToMumble(ws) {
-		var rate = 48000;
-		var frameSize = rate / 200;
 		var oggDecoder = new Ogg.Decoder();
 		oggDecoder.on('stream', function (stream) {
 			var opus = new Opus.Decoder();
@@ -66,29 +66,22 @@ function mumbleUp(connection) {
 	}
 
 	function setupMumbleToBrowser(ws) {
-		var sox = new Sox(mumbleOutputStream)
-			.inputSampleRate('48k')
-			.inputBits(16)
-			.inputChannels(1)
-			.inputFileType('raw')
-			.inputEncoding('signed')
-		var output = sox.output(websocketStreamOutput)
-			.outputSampleRate('44.1k')
-			.outputBits(32)
-			.outputEncoding('floating-point')
-			.outputChannels(1)
-			.outputFileType('raw');
-		sox.run();
-		websocketStreamOutput.on('data', function(data) {
-			ws.send(data, { binary: true, mask: true });
+		var oggEncoder = new Ogg.Encoder();
+		var oggStream = oggEncoder.stream();
+		var opus = new Opus.Encoder(rate, channels, frameSize);
+		opus.on('data', function(data) {
+			oggStream.packetin(data);
 		});
+		oggEncoder.on('data', function(data) {
+			ws.send(data);
+		});
+		mumbleOutputStream.pipe(opus);
+		console.log("SET THE FUCKING FUCK UP");
 	}
 
 	function handle(ws) {
-		//ws.on('open', function() {
-			setupBrowserToMumble(ws);
-			setupMumbleToBrowser(ws);
-			console.log("Stream accepted");
-		//});
+		setupBrowserToMumble(ws);
+		setupMumbleToBrowser(ws);
+		console.log("Stream accepted");
 	}
 }

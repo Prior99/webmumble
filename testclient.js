@@ -13,16 +13,20 @@ navigator.getUserMedia = (navigator.getUserMedia || navigator.mozGetUserMedia ||
  */
 
 //Connect to server
-var ws = new WebSocket('ws://localhost:8081');
-ws.binaryType = "arraybuffer";
-ws.onopen = function() {
-	//Get Usermedia
-	navigator.getUserMedia({ audio: true }, mediaAcquired, mediaError);
+
+
+navigator.getUserMedia({ audio: true }, mediaAcquired, mediaError);
+var ws;
+
+function mediaAcquired(stream) {
+	ws = new WebSocket('ws://localhost:8081');
+	ws.binaryType = "arraybuffer";
+	ws.onopen = function() {
+		webSocketOpened(stream);
+	};
 };
 
-
-
-function mediaAcquired(stream){
+function webSocketOpened(stream){
 	var context = new AudioContext();
 	/*
 	 * Microphone -> WebsocketSinkNode -> Server
@@ -56,11 +60,17 @@ function mediaAcquired(stream){
 	/*
 	 * Server -> WebsocketSourceNode -> Speaker
 	 */
+	var decoder = new Worker("workers/decoder/decoder.js");
+	decoder.postMessage({
+		command : 'init',
+		outputSampleRate : context.sampleRate,
+		inputSampleRate : 48000
+	});
 	var incoming = [];
 	var webSocketSourceNode = context.createScriptProcessor(bufferSize, 1, 1);
 	var voiceWasEnded = true;
 	ws.onmessage = function(message) {
-		var data = new Float32Array(message.data);
+		/*var data = new Float32Array(message.data);
 		if(data.length != bufferSize) {
 			for(var i = 0; i < data.length; i += bufferSize) {
 				incoming.push(data.slice(i, i + bufferSize));
@@ -71,7 +81,11 @@ function mediaAcquired(stream){
 		}
 		if(voiceWasEnded && incoming.length > 3) {
 			voiceWasEnded = false;
-		}
+		}*/
+		decoder.postMessage({
+			command : 'decode',
+			data : message.data
+		});
 		//console.log(data.length / bufferSize, "buffers written. Modulo", data.length % bufferSize, "Now ", incoming.length, "in queue");
 	};
 	webSocketSourceNode.onaudioprocess = function(e) {
