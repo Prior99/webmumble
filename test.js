@@ -34,8 +34,8 @@ function mumbleUp(connection) {
 	});
 	wss.on('connection', handle)
 	console.log("Server running at http://" + IP + ":" + PORT + "/");
-	var mumbleInputStream = FS.createWriteStream("encoded.pcm");
-	//var mumbleInputStream = connection.inputStream();
+	//var mumbleInputStream = FS.createWriteStream("encoded.pcm");
+	var mumbleInputStream = connection.inputStream();
 	var websocketStreamOutput = new PassThroughStream();
 	var mumbleOutputStream = new PassThroughStream();
 	connection.on("voice", function(data) {

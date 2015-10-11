@@ -45,13 +45,13 @@ var Encoder = function(e) {
 	this.oggEncoder = new OggEncoder({
 		channels : this.channels,
 		sampleRate : this.outputSampleRate,
-		onpacket : this.onpacket.bind(this)
+		onpacket : this.onpacket
 	});
 	this.opusEncoder = new OpusEncoder({
 		sampleRate : this.outputSampleRate,
 		channels :  this.channels,
 		onframe : this._onframe.bind(this),
-		onerror : this.onerror.bind(this)
+		onerror : this.onerror
 	});
 	this.resampler = new Resampler({
 		resampledRate : this.outputSampleRate,
@@ -86,7 +86,7 @@ this.onpacket = function(data) {
 this.onerror = function(err) {
 	this.postMessage({
 		type : 'error',
-		error : err
+		error : err.message
 	});
 };
 
@@ -101,6 +101,11 @@ this.onmessage = function(e) {
 		}, this);
 	}
 	else if(obj.command == 'encode') {
-		this.encoder.encode(obj.data); // Encode a buffer of raw pcm audio.
+		if(!this.encoder) {
+			this.onerror(new Error("encoder is unitialized"));
+		}
+		else {
+			this.encoder.encode(obj.data); // Encode a buffer of raw pcm audio.
+		}
 	}
 }.bind(this);

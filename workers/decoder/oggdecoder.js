@@ -126,6 +126,6 @@ OggDecoder.prototype.decode = function(data) {
 		}
 	}
 	catch(err) {
-		console.error(err);
+		this.onerror(err);
 	}
 };
