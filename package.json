@@ -4,7 +4,12 @@
   "description": "Webclient for connecting to any mumble server",
   "dependencies": {
     "binaryjs": "^0.2.1",
-    "express": "^4.13.1",
+    "browserify": "^11.2.0",
+    "ember": "^0.9.8",
+    "express": "^4.13.3",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
+    "jquery": "^2.1.4",
     "mumble": "^0.3.4",
     "node-opus": "^0.1.11",
     "ogg": "^1.2.1"
