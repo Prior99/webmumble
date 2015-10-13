@@ -1,59 +1,30 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require("socket.io")(http);
-var Client = require("./server/client.js");
-
+var Express = require('express');
+var http = require('http');
+var Client = require("./server/client");
+var BinaryServer = require('binaryjs').BinaryServer;
 var config = require("./config.json");
 
 var num = 0;
-var clients = {};
+var clients = [];
 
-app.get("/", function(req, res){
-    // console.log(req.query);
-    res.sendFile(__dirname + "/client/index.html");
-});
-app.get("/style.css", function(req, res){
-    // console.log(req.query);
-    res.sendFile(__dirname + "/client/style.css");
-});
+var app = Express();
 
-// app.get("/client/*.js", function(req, res){
-	// res.sendFile(__dirname + "/client/js/" + req.params[0] + ".js");
-// });
+var httpServer = http.createServer(app);
 
-// app.get("/shared/*.js", function(req, res){
-	// res.sendFile(__dirname + "/shared/" + req.params[0] + ".js");
-// });
-
-app.get("/dist/*.js", function(req, res){
-	res.sendFile(__dirname + "/dist/" + req.params[0] + ".js");
+var binaryServer = new BinaryServer({
+	server : httpServer
 });
 
-app.get("/audio/*", function(req, res){
-	var client = clients[req.params[0]];
-	if(client === undefined){
-		res.sendFile(__dirname + "/client/invalidSession.html");
-	}
-	else{
-		client.serveAudioOutputRequest(res);
-	}
+app.use('/jquery', Express.static('node_modules/jquery/dist/'));
+app.use('/binaryjs', Express.static('node_modules/binaryjs/dist/'));
+app.use("/",  Express.static("client/"));
+app.use("/dist/", Express.static("dist/"));
+
+binaryServer.on("connection", function(socket){
+	console.log("Client connected");
+	clients.push(new Client(socket));
 });
 
-io.on("connection", function(socket){
-    console.log("Client connected");
-	socket.on("requestTag", function(){
-		var tag = num;
-		clients[tag] =  new Client(socket);
-		socket.emit("tag", tag);
-		num++;
-		console.log("Handed out tag " + tag);
-	});
-	socket.on("showTag", function(tag){
-		clients[tag].assignAudioSocket(socket);
-		console.log("AudioSocket registered for tag " + tag);
-	})
-});
-
-http.listen(config.siteport, function(){
-    console.log("Webmumble is listening to port " + config.siteport);
+httpServer.listen(config.siteport, function(){
+	console.log("Webmumble is listening to port " + config.siteport);
 });

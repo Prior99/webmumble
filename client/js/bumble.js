@@ -1,6 +1,7 @@
 var Audio = require('./audio');
 var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
+var Command = require('./command');
 
 var Bumble = function(obj) {
 	this.websocketUrl = obj.websocketUrl;
@@ -9,6 +10,7 @@ var Bumble = function(obj) {
 		bufferSize : obj.bufferSize
 	});
 	this.audio.on('error', this._onError.bind(this));
+	this.command = new Command();
 };
 
 Util.inherits(Bumble, EventEmitter);
@@ -18,10 +20,28 @@ Bumble.prototype.start = function() {
 };
 
 Bumble.prototype._setupWebsocket = function() {
-	this.ws = new WebSocket(this.websocketUrl);
-	this.ws.binaryType = "arraybuffer";
-	this.ws.onopen = this._websocketOpened.bind(this);
-	this.ws.onmessage = this._onMessage.bind(this);
+	this.socket = new BinaryClient(this.websocketUrl);
+	this.socket.binaryType = "arraybuffer";
+	this.socket.on('open', this._websocketOpened.bind(this));
+	this.socket.on('stream', this._onStream.bind(this))
+};
+
+Bumble.prototype._onStream = function(stream) {
+	stream.on('data', function(data) {
+		if(data.type === "input") {
+			this.audio.setInputStream(stream);
+		}
+		else if(data.type === "output") {
+			this.audio.addOutputStream(stream);
+		}
+		else if(data.type === "command") {
+			this.command.setStream(stream);
+		}
+	}.bind(this));
+};
+
+Bumble.prototype.joinServer = function(server, port, username, password) {
+	this.command.joinServer(server, port, username, password);
 };
 
 Bumble.prototype._acquireAudio = function() {
@@ -29,12 +49,6 @@ Bumble.prototype._acquireAudio = function() {
 };
 
 Bumble.prototype._setupAudio = function() {
-	this.audio.on('packet', function(packet) {
-		this.ws.send(packet);
-	}.bind(this));
-	this.audio.on('ready', function() {
-		this.emit('ready');
-	}.bind(this));
 	this.audio.setupAudio(this.context, this.source, this.destination);
 	this._setupWebsocket();
 };
@@ -53,10 +67,6 @@ Bumble.prototype._websocketOpened = function(stream) {
 
 Bumble.prototype._onError = function(err) {
 	this.emit('error', err);
-};
-
-Bumble.prototype._onMessage = function(message) {
-	this.audio.message(message.data);
 };
 
 module.exports = Bumble;

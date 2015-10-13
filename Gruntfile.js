@@ -1,12 +1,16 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		browserify: {
-			dist:{
+			dist: {
 				files: {
 					"dist/webmumble.js": ["./client/js/*.js", "./shared/*.js"],
 				},
 				options: {
-					"require": ["./client/js/client.js:Client"]
+					require: ["./client/js/bumble.js:Bumble"],
+					exclude : ["binaryjs", "grunt", "grunt-browserify", "mumble", "ogg", "node-opus"],
+					browserifyOptions: {
+						debug: true
+					}
 				}
 			}
 		}

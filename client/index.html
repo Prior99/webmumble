@@ -1,10 +1,10 @@
 <html>
 	<head>
-		<script src="/socket.io/socket.io.js"></script>
-		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+		<script src="/jquery/jquery.min.js"></script>
+		<script src="/binaryjs/binary.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="style.css">
-		
-		<script src="../dist/webmumble.js"></script>
+
+		<script src="/dist/webmumble.js"></script>
 	</head>
 	<body>
 		<div id="connectTo">
@@ -15,11 +15,15 @@
 				</tr>
 				<tr>
 					<td>Port</td>
-					<td><input type="text" id="port"/></td>
+					<td><input type="text" id="port" value="64738"/></td>
 				</tr>
 				<tr>
 					<td>Benutzername</td>
 					<td><input type="text" id="username"/></td>
+				</tr>
+				<tr>
+					<td>Serverpasswort</td>
+					<td><input type="text" id="password"/></td>
 				</tr>
 				<tr>
 					<td></td>
@@ -40,8 +44,11 @@
 		</div>
 
 		<script>
-			var Client = require("Client");
-			
+			window.AudioContext = window.AudioContext || window.webkitAudioContext;
+			navigator.getUserMedia = (navigator.getUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.webkitGetUserMedia);
+
+			var Bumble = require("Bumble");
+
 			function setGUI(connected){
 				if(connected){
 					$("#connectTo").hide();
@@ -52,27 +59,28 @@
 					$("#mumble").hide();
 				}
 			}
-			
+
 			$(function(){
 				setGUI(false);
-				
-				var socket = io();
-				var audioSocket = io();
-				
-				var client = new Client({
-					messages: socket,
-					audio: audioSocket
-				}, {
-					channels: $("#channels"), 
-					messages: $("#messages"),
-					audioOut: $("#audioOut")[0]
-				}, function(){
-					$("#submit").click(function(event){
-						console.log("Connecting...");
-						setGUI(true);
-						client.joinServer($("#server").val(), $("#port").val(), $("#username").val());
-					});
+
+				window.bumble = new Bumble({
+					sampleRate : 48000,
+					bufferSize : 1024,
+					websocketUrl : "ws://localhost:8080"
 				});
+
+				window.bumble.on('error', function(err) {
+					console.error(err);
+				});
+
+				$("#submit").click(function() {
+					window.bumble.joinServer($("#server").val(),
+						$("#port").val(),
+						$("#username").val(),
+						$("#password").val());
+				})
+
+				window.bumble.start();
 			});
 		</script>
 	</body>

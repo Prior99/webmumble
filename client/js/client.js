@@ -1,38 +1,27 @@
-var ChannelTree = require("./channelTree");
+/*var ChannelTree = require("./channelTree");
 var User = require("./user");
 var Channel = require("./channel");
-
-
-function hasGetUserMedia() {
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-  return !!navigator.getUserMedia;
-}
 
 var Client = function(sockets, htmlElements, ready){
 	this.views = {
 		channel: htmlElements.channels,
 		message: htmlElements.messages
 	};
-	this.audio = {
-		output: htmlElements.audioOut,
-		input: htmlElements.audioIn
-	};
 	this.socket = sockets.messages;
-	this.audioSocket = sockets.audio;
-	
+
 	this.ready = [ready];
 	this.socket.emit("requestTag");
-	
+
 	this.socket.on("mumble-error", this.eventHandler.onError.bind(this));
 	this.socket.on("joinedServer", this.eventHandler.onServerJoined.bind(this));
 	this.socket.on("tag", this.eventHandler.onTag.bind(this));
-	
+
 	this.initMumbleEvents();
 	// this.socket.on("channelJoined", this.eventHandler.onChannelJoined.bind(this));
 };
 
 Client.prototype = {
-	joinServer: function(server, port, username){	
+	joinServer: function(server, port, username){
 		this.serverInfo = {
 			server: server,
 			port: port,
@@ -43,7 +32,7 @@ Client.prototype = {
 	joinChannel: function(path){
 		this.socket.emit("joinChannel", path);
 	},
-	
+
 	eventHandler: {
 		onError: function(error){
 			console.log(error);
@@ -62,7 +51,7 @@ Client.prototype = {
 			var startAudio = function(){
 				this.audio.output.src = "http://" + window.location.host+ "/audio/" + this.tag;
 				this.audio.output.play();
-				
+
 				if(hasGetUserMedia()){
 					navigator.getUserMedia({
 						audio: true
@@ -71,15 +60,15 @@ Client.prototype = {
 						this.audio.input = this.audio.context.createMediaStreamSource(stream);
 						console.log(this.audio.context);
 						console.log(this.audio.input);
-						
+
 						var streamer = this.audio.context.createScriptProcessor(0, 1, 1);
 						streamer.onaudioprocess = function(event){
 							this.audioSocket.emit("record", event.inputBuffer.getChannelData(0));
 						}.bind(this);
-						
+
 						this.audio.input.connect(streamer);
 						streamer.connect(this.audio.context.destination);
-						
+
 						stream.onactive = function() {
 							console.log("aktive");
 						}.bind(this);
@@ -97,20 +86,20 @@ Client.prototype = {
 			else{
 				this.ready.push(startAudio);
 			}
-			
+
 			this.channelTree = new ChannelTree(new Channel(args.channels));
-			
+
 			var html = this.channelTree.rootChannel.html;
 			this.views.channel.html("");
 			this.views.channel.append(html);
-			
+
 			this.channelTree.findUser(this.serverInfo.username, function(user,channel){
 				this.user = {
 					user: user,
 					channel: channel
 				};
 			}.bind(this));
-			
+
 			$(".channel").click(function(event){
 				this.joinChannel(event.toElement.id);
 				return false;
@@ -141,7 +130,7 @@ Client.prototype = {
 			});
 		}
 	},
-	
+
 	initMumbleEvents: function(){
 		this.socket.on("user-connect", this.eventHandler.onUserConnect.bind(this));
 		this.socket.on("user-move", this.eventHandler.onUserMove.bind(this));
@@ -149,4 +138,4 @@ Client.prototype = {
 	}
 };
 
-module.exports = Client;
+module.exports = Client;*/
