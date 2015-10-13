@@ -49,7 +49,7 @@ Command.prototype.retreiveChannels = function(){
 };
 
 Command.prototype.onMumbleInit = function() {
-	this.remote.emit("channels", {
+	this.remote.send("channels", {
 		channels: this.retreiveChannels()
 	});
 	this.emit("connected", this.mumble);
@@ -57,7 +57,7 @@ Command.prototype.onMumbleInit = function() {
 
 Command.prototype.onUserConnect = function(user) {
 	console.log("User " + user.name + " connected");
-	this.remote.emit("user-connect", {
+	this.remote.send("user-connect", {
 		name: user.name,
 		session : user.session
 	});
@@ -65,7 +65,7 @@ Command.prototype.onUserConnect = function(user) {
 
 Command.prototype.onUserMove = function(user, oldChannel, newChannel) {
 	console.log("User " + user.name + " moved from " + oldChannel.name + " to " + newChannel.name);
-	this.remote.emit("user-move", {
+	this.remote.send("user-move", {
 		user: user.name,
 		oldChannel: oldChannel.id,
 		newChannel: newChannel.id
@@ -74,7 +74,7 @@ Command.prototype.onUserMove = function(user, oldChannel, newChannel) {
 
 Command.prototype.onUserDisconnect = function(user) {
 	console.log("User " + user.name + " disconnected");
-	this.remote.emit("user-disconnect", user.name);
+	this.remote.send("user-disconnect", user.name);
 };
 
 Command.prototype.initMumbleEvents = function() {

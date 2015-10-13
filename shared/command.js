@@ -11,6 +11,7 @@ var Protocol = function(stream) {
 Util.inherits(Protocol, EventEmitter);
 
 Protocol.prototype.onData = function(data) {
+	console.log("received", data);
 	var type = data.type;
 	if(type == "event") {
 		this.onEvent(data);
@@ -53,6 +54,7 @@ Protocol.prototype.send = function(event, data, done) {
 		this.answers[this.packetId] = done;
 	}
 	this.stream.write(obj);
+	console.log("send", obj);
 	this.packetId++;
 };
 
