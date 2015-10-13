@@ -19,6 +19,8 @@ app.use('/jquery', Express.static('node_modules/jquery/dist/'));
 app.use('/binaryjs', Express.static('node_modules/binaryjs/dist/'));
 app.use("/",  Express.static("client/"));
 app.use("/dist/", Express.static("dist/"));
+app.use("/bootstrap", Express.static("node_modules/bootstrap/dist/"));
+app.use("/bootswatch", Express.static("node_modules/bootswatch/"));
 
 binaryServer.on("connection", function(socket){
 	console.log("Client connected");

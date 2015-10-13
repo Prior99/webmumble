@@ -4,15 +4,18 @@
   "description": "Webclient for connecting to any mumble server",
   "dependencies": {
     "binaryjs": "^0.2.1",
+    "bootstrap": "^3.3.5",
+    "bootswatch": "^3.3.5",
     "browserify": "^11.2.0",
-    "ember": "^0.9.8",
     "express": "^4.13.3",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
     "jquery": "^2.1.4",
     "mumble": "^0.3.4",
     "node-opus": "^0.1.11",
-    "ogg": "^1.2.1"
+    "ogg": "^1.2.1",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
