@@ -8,7 +8,7 @@ var Command = function() {
 };
 
 Command.prototype.onChannels = function(channels, done) {
-	this.channelTree = new ChannelTree(new Channel(channels));
+	//this.channelTree = new ChannelTree(new Channel(channels));
 	console.log(channels);
 };
 
