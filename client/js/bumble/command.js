@@ -25,8 +25,9 @@ Command.prototype.joinServer = function(server, port, username, password, done) 
 	this.remote.send("joinServer", this.serverInfo, done);
 };
 
-Command.prototype.joinChannel = function(path){
-	this.socket.emit("joinChannel", path);
+Command.prototype.joinChannel = function(channel){
+	console.log(channel);
+	this.remote.send("joinChannel", channel.id);
 };
 
 Command.prototype.onUserConnect = function(user){

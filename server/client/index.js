@@ -31,7 +31,8 @@ Client.prototype.retreiveChannels = function(){
 			name: channel.name,
 			users: users,
 			children: [],
-			id : channel.id
+			id : channel.id,
+			position : channel.position
 		}
 		parent.children.push(channeldata);
 		if(channel.children && channel.children.length){
@@ -48,10 +49,16 @@ Client.prototype.retreiveChannels = function(){
 
 Client.prototype.onMumbleInit = function() {
 	this.audio.setupMumble(this.mumble);
-	this.mumble.on("user-connect", this.command.onUserConnect.bind(this));
-	this.mumble.on("user-move", this.command.onUserMove.bind(this));
-	this.mumble.on("user-disconnect", this.command.onUserDisconnect.bind(this));
+	this.mumble.on("user-connect", this.command.onUserConnect.bind(this.command));
+	this.mumble.on("user-move", this.command.onUserMove.bind(this.command));
+	this.mumble.on("user-disconnect", this.command.onUserDisconnect.bind(this.command));
+	
+	this.mumble.on("error", this.onMumbleError.bind(this))
 	this.command.onMumbleInit(this.retreiveChannels());
+};
+
+Client.prototype.onMumbleError = function(err) {
+	console.error(err);
 };
 
 Client.prototype.joinChannel = function(id, done) {

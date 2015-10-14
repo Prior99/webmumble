@@ -48,6 +48,10 @@ Bumble.prototype._onStream = function(stream) {
 	}.bind(this));
 };
 
+Bumble.prototype.joinChannel = function(channel) {
+	this.command.joinChannel(channel);
+};
+
 Bumble.prototype.joinServer = function(server, port, username, password) {
 	this.command.joinServer(server, port, username, password, this.onServerJoined.bind(this));
 };

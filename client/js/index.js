@@ -38,6 +38,9 @@ $(function(){
 
 	bumble.on('server-joined', function() {
 		ui = new MainUI(container);
+		ui.on("join-channel", function(channel) {
+			bumble.joinChannel(channel);
+		})
 	});
 
 	bumble.on('channels', function(channels) {

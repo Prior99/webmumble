@@ -14,12 +14,17 @@ var MainUI = function(container) {
 
 Util.inherits(MainUI, EventEmitter);
 
+MainUI.prototype.onChannelJoin = function(channel) {
+	this.emit("join-channel", channel);
+};
+
 MainUI.prototype.start = function(channels) {
+	var uiThis = this;
 	this.channels = channels;
 	this.component = React.createClass({
 		render : function() {
 			return (
-				<ChannelTree channels={channels} />
+				<ChannelTree channels={channels} onChannelJoin={uiThis.onChannelJoin.bind(uiThis)}/>
 			);
 		}
 	});
