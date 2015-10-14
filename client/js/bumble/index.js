@@ -11,9 +11,9 @@ var Bumble = function(obj) {
 	});
 	this.audio.on('error', this._onError.bind(this));
 	this.command = new Command();
-	this.command.on("channels", function(channels) {
-		this.emit("channels", channels);
-	}.bind(this))
+	this.on('newListener', function (event, listener) {
+		this.command.on(event, listener);
+	});
 };
 
 Util.inherits(Bumble, EventEmitter);

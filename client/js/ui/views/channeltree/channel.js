@@ -9,11 +9,10 @@ var Channel = React.createClass({
 		this.props.onJoin(this.props.channel);
 	},
 	render: function() {
-		var currentChannel = this.props.channel;
-		var users = currentChannel.users.map(function(user) {
+		var subUsers = this.props.channel.users.map(function(user) {
 			return <User user={user} key={user.session}/>;
 		}.bind(this));
-		var subChannels = currentChannel.children.sort(function(a, b) {
+		var subChannels = this.props.channel.children.sort(function(a, b) {
 			return a.position - b.position
 		}).map(function(channel) {
 			return <Channel channel={channel} key={channel.id} onJoin={this.bubbleUpJoin}/>;
@@ -21,13 +20,13 @@ var Channel = React.createClass({
 		return (
 			<li className="channel">
 				<div className="info">
-					<div className="name">{currentChannel.name}</div>
+					<div className="name">{this.props.channel.name}</div>
 					<div className="buttons">
 						<button className="btn btn-xs" onClick={this.handleJoin}><i className="fa fa-sign-in"></i></button>
 					</div>
 				</div>
 				<div className="users">
-					<ul>{users}</ul>
+					<ul>{subUsers}</ul>
 				</div>
 				<div className="channels">
 					<ul>{subChannels}</ul>

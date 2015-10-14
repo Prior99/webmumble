@@ -27,7 +27,7 @@ Command.prototype.onUserConnect = function(user) {
 
 Command.prototype.onUserMove = function(user, oldChannel, newChannel) {
 	this.remote.send("user-move", {
-		user: user.name,
+		user: user.session,
 		oldChannel: oldChannel.id,
 		newChannel: newChannel.id
 	});

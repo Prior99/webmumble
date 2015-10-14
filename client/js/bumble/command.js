@@ -26,27 +26,19 @@ Command.prototype.joinServer = function(server, port, username, password, done) 
 };
 
 Command.prototype.joinChannel = function(channel){
-	console.log(channel);
 	this.remote.send("joinChannel", channel.id);
 };
 
 Command.prototype.onUserConnect = function(user){
-	console.log("User " + user.name + " joined");
-	this.channelTree.rootChannel.addUser(new User(user));
+	this.emit("user-connect", user);
 };
 
 Command.prototype.onUserMove = function(args){
-	console.log(args);
-	console.log("User " + args.user + " moved from " + args.oldChannel + " to " + args.newChannel);
-	this.channelTree.moveUser(args.user, args.newChannel);
+	this.emit("user-move", args);
 };
 
 Command.prototype.onUserDisconnect = function(user){
-	console.log("User " + user + " disconnected");
-	this.channelTree.findUser(user, function(user, channel){
-		console.log("\t User found");
-		channel.removeUser(user);
-	});
+	this.emit("user-disconnect", user);
 };
 
 Command.prototype.setStream = function(stream) {

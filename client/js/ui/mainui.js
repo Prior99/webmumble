@@ -5,11 +5,28 @@ var Loading = require("./views/loading");
 var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
 //var ChatLog = require("./views/chatlog");
-var ChannelTree = require("./views/channeltree");
+var ChannelTreeComponent = require("./views/channeltree");
+var ChannelTree = require("../../../shared/channelTree");
 //var ChatInput = require("./views/chatinput");
 
 var MainUI = function(container) {
+	var uiThis = this;
 	this.container = container;
+	this.componentClass = React.createClass({
+		getInitialState : function() {
+			return {
+				channels : null
+			};
+		},
+		render : function() {
+			return (
+				<div>
+					<h2>Channel Tree</h2>
+					<ChannelTreeComponent channels={this.state.channels} onChannelJoin={uiThis.onChannelJoin.bind(uiThis)}/>
+				</div>);
+		}
+	});
+	this.component = ReactDOM.render(<this.componentClass />, this.container);
 };
 
 Util.inherits(MainUI, EventEmitter);
@@ -18,17 +35,38 @@ MainUI.prototype.onChannelJoin = function(channel) {
 	this.emit("join-channel", channel);
 };
 
-MainUI.prototype.start = function(channels) {
-	var uiThis = this;
-	this.channels = channels;
-	this.component = React.createClass({
-		render : function() {
-			return (
-				<ChannelTree channels={channels} onChannelJoin={uiThis.onChannelJoin.bind(uiThis)}/>
-			);
-		}
+MainUI.prototype.moveUser = function(userSession, oldChannel, newChannel) {
+	var update = function() {
+		this.component.setState({
+			channels : this.channels.rootChannel
+		});
+	}.bind(this);
+	var attachUser = function(user) {
+		this.channels.findChannelById(newChannel, function(channel, parent) {
+			if(channel) {
+				channel.users.push(user);
+				update();
+			}
+		}.bind(this));
+	}.bind(this);
+	var detachUser = function() {
+		this.channels.findUserBySession(userSession, function(foundUser, channel) {
+			if(foundUser && channel) {
+				channel.users = channel.users.filter(function(user) {
+					return userSession !== foundUser.session;
+				});
+				attachUser(foundUser);
+			}
+		}.bind(this));
+	}.bind(this);
+	detachUser();
+};
+
+MainUI.prototype.setChannels = function(channels) {
+	this.channels = new ChannelTree(channels);
+	this.component.setState({
+		channels : this.channels.rootChannel
 	});
-	ReactDOM.render(<this.component />, this.container);
 };
 
 module.exports = MainUI;

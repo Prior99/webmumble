@@ -43,9 +43,13 @@ $(function(){
 		})
 	});
 
+	bumble.on("user-move", function(args) {
+		ui.moveUser(args.user, args.oldChannel, args.newChannel);
+	});
+
 	bumble.on('channels', function(channels) {
 		console.log(ui);
-		ui.start(channels);
+		ui.setChannels(channels);
 	});
 
 	bumble.on('ready', function() {

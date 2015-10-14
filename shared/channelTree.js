@@ -7,7 +7,7 @@ ChannelTree.prototype = {
 	 * Traveres all channels from root down. If no root is given, the channel tree of with which the object was constructed is used.
 	 *
 	 * Root can be any object with the attributes "name" and "children" (array of objects with the same attributes).
-	 * 
+	 *
 	 * 	@param
 	 *		todo: is invoked on every channel
 	 *			@param
@@ -31,7 +31,7 @@ ChannelTree.prototype = {
 			if(todo(channel, channelInfo.parent)){
 				return true;
 			}
-			
+
 			if(channel.children !== undefined && channel.children.length !== 0){
 				for(var i = 0; i < channel.children.length; i++){
 					channelsToProcess.push({
@@ -43,12 +43,12 @@ ChannelTree.prototype = {
 		}
 		return false;
 	},
-	
+
 	/**
 	 * Traveres all users below the channel "root". If no root is given, the channel tree of with which the object was constructed is used.
 	 *
 	 * Root can be any object with the attributes "name", "children" (array of objects with the same attributes) and users (array of objects).
-	 * 
+	 *
 	 * 	@param
 	 *		todo: is invoked on every user
 	 *			@param
@@ -72,7 +72,7 @@ ChannelTree.prototype = {
 			return false;
 		}, root);
 	},
-	
+
 	/**
 	 * Finds the user specified by username and invokes the callback when it is found. When the user is not found it will call the callback with undefined as both parameters.
 	 * 	@param
@@ -86,9 +86,9 @@ ChannelTree.prototype = {
 	 *	@return
 	 *		undefined
 	 */
-	findUser: function(username, todo){
+	findUserBySession: function(session, todo){
 		var found = this.traverseUsers(function(user, channel){
-			if(user.name === username){
+			if(user.session === session){
 				todo(user, channel);
 				return true;
 			}
@@ -98,7 +98,19 @@ ChannelTree.prototype = {
 			todo();
 		}
 	},
-	
+	findChannelById: function(id, todo){
+		var found = this.traverseChannels(function(channel, parent){
+			if(channel.id === id){
+				todo(channel, parent);
+				return true;
+			}
+			return false;
+		});
+		if(! found){
+			todo();
+		}
+	},
+
 	/**
 	 * Finds a channel by its path in the hierachy (e.g. /rootChannel/channel/finalChannel). It must always be an absolute path (starting wit "/rootChannel").
 	 * 	@param
