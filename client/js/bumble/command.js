@@ -1,7 +1,7 @@
-var CommandProtocol = require("../../shared/command");
-var ChannelTree = require("./channelTree");
-var User = require("./user");
-var Channel = require("./channel");
+var CommandProtocol = require("../../../shared/command");
+var ChannelTree = require("../channelTree");
+var User = require("../user");
+var Channel = require("../channel");
 
 var Command = function() {
 

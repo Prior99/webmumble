@@ -3,86 +3,19 @@
 		<script src="/jquery/jquery.min.js"></script>
 		<script src="/binaryjs/binary.min.js"></script>
 		<script src="/bootstrap/js/bootstrap.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="style.css">
-		<script src="/bootstrap/js/bootstrap.min.js"></script>
-		<script src="/dist/webmumble.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/bootswatch/darkly/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/fontawesome/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="/bundle.css">
 	</head>
 	<body>
-		<div id="connectTo">
-			<table>
-				<tr>
-					<td>Server</td>
-					<td><input type="text" id="server"/></td>
-				</tr>
-				<tr>
-					<td>Port</td>
-					<td><input type="text" id="port" value="64738"/></td>
-				</tr>
-				<tr>
-					<td>Benutzername</td>
-					<td><input type="text" id="username"/></td>
-				</tr>
-				<tr>
-					<td>Serverpasswort</td>
-					<td><input type="text" id="password"/></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td><input type="submit" value="Betreten" id="submit"/></td>
-				</tr>
-			</table>
-		</div>
-
-		<div id="mumble">
-			<audio id="audioOut" autoplay> Audio is not yet supported by your browser!"</audio>
-			<ul id="channels">
-				<li class="channel">channel</li>
-				<li class="user">user</li>
-				<li class="channel">channel</li>
-			</ul>
-			<div id="messages">
+		<div id="wrapper">
+			<div id="page-content-wrapper">
+				<div class="container-fluid" id="container">
+				</div>
 			</div>
 		</div>
-
-		<script>
-			window.AudioContext = window.AudioContext || window.webkitAudioContext;
-			navigator.getUserMedia = (navigator.getUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.webkitGetUserMedia);
-
-			var Bumble = require("Bumble");
-
-			function setGUI(connected){
-				if(connected){
-					$("#connectTo").hide();
-					$("#mumble").show();
-				}
-				else{
-					$("#connectTo").show();
-					$("#mumble").hide();
-				}
-			}
-
-			$(function(){
-				setGUI(false);
-
-				window.bumble = new Bumble({
-					sampleRate : 48000,
-					bufferSize : 1024,
-					websocketUrl : "ws://localhost:8080"
-				});
-
-				window.bumble.on('error', function(err) {
-					console.error(err);
-				});
-
-				$("#submit").click(function() {
-					window.bumble.joinServer($("#server").val(),
-						$("#port").val(),
-						$("#username").val(),
-						$("#password").val());
-				})
-
-				window.bumble.start();
-			});
-		</script>
+		<script src="/bundle.js"></script>
 	</body>
 </html>

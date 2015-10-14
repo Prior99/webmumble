@@ -3,20 +3,38 @@ module.exports = function(grunt) {
 		browserify: {
 			dist: {
 				files: {
-					"dist/webmumble.js": ["./client/js/*.js", "./shared/*.js"],
+					"dist/bundle.js": ["./client/js/*.js", "./shared/*.js"],
 				},
 				options: {
-					require: ["./client/js/bumble.js:Bumble"],
 					exclude : ["binaryjs", "grunt", "grunt-browserify", "mumble", "ogg", "node-opus"],
 					browserifyOptions: {
 						debug: true
-					}
+					},
+					transform: [["babelify"]]
+				}
+			}
+		},
+		watch: {
+			scripts: {
+				files: ['**/*.js', '**/*.less'],
+				tasks: ['default'],
+				options: {
+					spawn: false,
+				},
+			},
+		},
+		less: {
+			development: {
+				files: {
+					"dist/bundle.css": "client/style/style.less"
 				}
 			}
 		}
 	});
 
 	grunt.loadNpmTasks('grunt-browserify');
+	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-contrib-less');
 
-	grunt.registerTask("default", ["browserify"]);
+	grunt.registerTask("default", ["browserify", "less"]);
 };

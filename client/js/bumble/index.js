@@ -1,4 +1,4 @@
-var Audio = require('./audio');
+var Audio = require('../audio');
 var Util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var Command = require('./command');
