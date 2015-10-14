@@ -31,7 +31,7 @@ Protocol.prototype.onAnswer = function(data) {
 
 Protocol.prototype.onEvent = function(data) {
 	var event = data.event;
-	var data = data.data;
+	var dat = data.data;
 	var done = function(answer) {
 		var obj = {
 			id : data.id,
@@ -40,7 +40,7 @@ Protocol.prototype.onEvent = function(data) {
 		};
 		this.stream.write(obj);
 	}.bind(this);
-	this.emit(event, data, done);
+	this.emit(event, dat, done);
 };
 
 Protocol.prototype.send = function(event, data, done) {
