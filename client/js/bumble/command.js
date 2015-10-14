@@ -12,14 +12,14 @@ Command.prototype.onChannels = function(channels, done) {
 	console.log(channels);
 };
 
-Command.prototype.joinServer = function(server, port, username, password) {
+Command.prototype.joinServer = function(server, port, username, password, done) {
 	this.serverInfo = {
 		server : server,
 		port : port,
 		username : username,
 		password : password
 	};
-	this.remote.send("joinServer", this.serverInfo);
+	this.remote.send("joinServer", this.serverInfo, done);
 };
 
 Command.prototype.joinChannel = function(path){
@@ -45,13 +45,9 @@ Command.prototype.onUserDisconnect = function(user){
 	});
 };
 
-Command.prototype.onServerJoined = function(status, done) {
-
-};
-
 Command.prototype.setStream = function(stream) {
 	this.remote = new CommandProtocol(stream);
-	this.remote.on("joinedServer", this.onServerJoined.bind(this));
+	//this.remote.on("joinedServer", this.onServerJoined.bind(this));
 	this.remote.on("user-connect", this.onUserConnect.bind(this));
 	this.remote.on("user-move", this.onUserMove.bind(this));
 	this.remote.on("user-disconnect", this.onUserDisconnect.bind(this));

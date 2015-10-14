@@ -15,6 +15,10 @@ var Bumble = function(obj) {
 
 Util.inherits(Bumble, EventEmitter);
 
+Bumble.prototype.onServerJoined = function() {
+	this.emit('server-joined');
+};
+
 Bumble.prototype.start = function() {
 	this._acquireAudio();
 };
@@ -41,7 +45,7 @@ Bumble.prototype._onStream = function(stream) {
 };
 
 Bumble.prototype.joinServer = function(server, port, username, password) {
-	this.command.joinServer(server, port, username, password);
+	this.command.joinServer(server, port, username, password, this.onServerJoined.bind(this));
 };
 
 Bumble.prototype._acquireAudio = function() {

@@ -1,12 +1,14 @@
 var Bumble = require("./bumble");
-var UI = require("./ui");
+var ConnectUI = require("./ui/connectui");
+var MainUI = require("./ui/mainui");
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 navigator.getUserMedia = (navigator.getUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.webkitGetUserMedia);
 
 
 $(function(){
-	var ui = new UI($("#container")[0]);
+	var container = $("#container")[0];
+	var ui = new ConnectUI(container);
 	var bumble = new Bumble({
 		sampleRate : 48000,
 		bufferSize : 1024,
@@ -14,6 +16,7 @@ $(function(){
 	});
 
 	ui.on('connect', function(args) {
+		ui.displayJoiningServerPage();
 		bumble.joinServer(args.server, args.port, args.username, args.password);
 	});
 
@@ -26,12 +29,16 @@ $(function(){
 		ui.displayConnectingPage();
 	});
 
+	bumble.on('server-joined', function() {
+		ui = new MainUI(container);
+	});
+
 	bumble.on('connected', function() {
 		ui.displayConnectPage();
 	});
+
 	ui.displayAudioAcquirationPage();
 
 	bumble.start();
 	window.bumble = bumble;
-	window.ui = ui;
 });
