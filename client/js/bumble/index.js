@@ -40,6 +40,7 @@ Bumble.prototype._onStream = function(stream) {
 		}
 		else if(data.type === "command") {
 			this.command.setStream(stream);
+			this.emit('ready');
 		}
 	}.bind(this));
 };

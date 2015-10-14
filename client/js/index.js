@@ -5,6 +5,12 @@ var MainUI = require("./ui/mainui");
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 navigator.getUserMedia = (navigator.getUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.webkitGetUserMedia);
 
+$.urlParam = function(name){
+	var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+	if(results) {
+		return results[1];
+	}
+};
 
 $(function(){
 	var container = $("#container")[0];
@@ -15,11 +21,12 @@ $(function(){
 		websocketUrl : "ws://localhost:8080"
 	});
 
-	ui.on('connect', function(args) {
+	function connect(args) {
 		ui.displayJoiningServerPage();
 		bumble.joinServer(args.server, args.port, args.username, args.password);
-	});
+	}
 
+	ui.on('connect', connect);
 
 	bumble.on('error', function(err) {
 		console.error(err);
@@ -33,8 +40,18 @@ $(function(){
 		ui = new MainUI(container);
 	});
 
-	bumble.on('connected', function() {
-		ui.displayConnectPage();
+	bumble.on('ready', function() {
+		if($.urlParam("server") && $.urlParam("username")) {
+			connect({
+				server : $.urlParam("server"),
+				username : $.urlParam("username"),
+				password : $.urlParam("password"),
+				port : $.urlParam("port") || 64738
+			});
+		}
+		else {
+			ui.displayConnectPage();
+		}
 	});
 
 	ui.displayAudioAcquirationPage();
