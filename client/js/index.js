@@ -40,6 +40,11 @@ $(function(){
 		ui = new MainUI(container);
 	});
 
+	bumble.on('channels', function(channels) {
+		console.log(ui);
+		ui.start(channels);
+	});
+
 	bumble.on('ready', function() {
 		if($.urlParam("server") && $.urlParam("username")) {
 			connect({

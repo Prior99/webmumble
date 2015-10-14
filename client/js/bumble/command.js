@@ -2,14 +2,17 @@ var CommandProtocol = require("../../../shared/command");
 var ChannelTree = require("../channelTree");
 var User = require("../user");
 var Channel = require("../channel");
+var Util = require('util');
+var EventEmitter = require('events').EventEmitter;
 
 var Command = function() {
 
 };
 
+Util.inherits(Command, EventEmitter);
+
 Command.prototype.onChannels = function(channels, done) {
-	//this.channelTree = new ChannelTree(new Channel(channels));
-	console.log(channels);
+	this.emit("channels", channels);
 };
 
 Command.prototype.joinServer = function(server, port, username, password, done) {
