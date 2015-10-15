@@ -20,10 +20,16 @@ var MainUI = function(container) {
 		},
 		render : function() {
 			return (
-				<div>
-					<h2>Channel Tree</h2>
-					<ChannelTreeComponent channels={this.state.channels} onChannelJoin={uiThis.onChannelJoin.bind(uiThis)}/>
-				</div>);
+				<div className="row">
+					<div className="col-md-6">
+						<h2>Channel Tree</h2>
+						<ChannelTreeComponent channels={this.state.channels} onChannelJoin={uiThis.onChannelJoin.bind(uiThis)}/>
+					</div>
+					<div className="col-md-6">
+
+					</div>
+				</div>
+			);
 		}
 	});
 	this.component = ReactDOM.render(<this.componentClass />, this.container);

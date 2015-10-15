@@ -13,7 +13,7 @@ var ConnectForm = React.createClass({
 	render: function() {
 		return (
 			<div className="vertical-center">
-			<form className="form-signin" onSubmit={this.handleConnect}>
+			<form className="form-signin well" onSubmit={this.handleConnect}>
 				<h2 className="form-signin-heading">Connect</h2>
 				<div className="form-group">
 					<div className="input-group">

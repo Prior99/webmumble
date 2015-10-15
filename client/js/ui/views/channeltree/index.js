@@ -7,10 +7,10 @@ var ChannelTree = React.createClass({
 	},
 	render: function() {
 		if(this.props.channels) {
-			return <ul> <Channel channel={this.props.channels} onJoin={this.handleChannelJoin}/> </ul>;
+			return <ul className="channeltree"> <Channel channel={this.props.channels} onJoin={this.handleChannelJoin}/> </ul>;
 		}
 		else {
-			return <ul></ul>
+			return <ul className="channeltree"></ul>
 		}
 	}
 });

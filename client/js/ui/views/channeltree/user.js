@@ -3,7 +3,7 @@ var React = require("react");
 var User = React.createClass({
 	render: function() {
 		return (
-			<li className="user">{this.props.user.name}</li>
+			<li className="user"><i className="icon fa fa-user"></i> {this.props.user.name}</li>
 		);
 	}
 });
