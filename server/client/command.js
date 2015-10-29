@@ -17,6 +17,13 @@ Util.inherits(Command, EventEmitter);
 Command.prototype.onMumbleInit = function(channels) {
 	this.remote.send("channels", channels);
 };
+Command.prototype.onMumbleError = function(err) {
+	var reason = "unknown";
+	if(err.data.permission) {
+		reason = "permission";
+	}
+	this.remote.send("mumble-error", reason);
+};
 
 Command.prototype.onUserConnect = function(user) {
 	this.remote.send("user-connect", {

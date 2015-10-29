@@ -41,6 +41,10 @@ Command.prototype.onUserDisconnect = function(user){
 	this.emit("user-disconnect", user);
 };
 
+Command.prototype.onMumbleError = function(reason) {
+	this.emit("mumble-error", reason);
+};
+
 Command.prototype.setStream = function(stream) {
 	this.remote = new CommandProtocol(stream);
 	//this.remote.on("joinedServer", this.onServerJoined.bind(this));
@@ -48,6 +52,7 @@ Command.prototype.setStream = function(stream) {
 	this.remote.on("user-move", this.onUserMove.bind(this));
 	this.remote.on("user-disconnect", this.onUserDisconnect.bind(this));
 	this.remote.on("channels", this.onChannels.bind(this));
+	this.remote.on("mumble-error", this.onMumbleError.bind(this));
 };
 
 module.exports = Command;

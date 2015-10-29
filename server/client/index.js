@@ -52,13 +52,14 @@ Client.prototype.onMumbleInit = function() {
 	this.mumble.on("user-connect", this.command.onUserConnect.bind(this.command));
 	this.mumble.on("user-move", this.command.onUserMove.bind(this.command));
 	this.mumble.on("user-disconnect", this.command.onUserDisconnect.bind(this.command));
-	
+
 	this.mumble.on("error", this.onMumbleError.bind(this))
 	this.command.onMumbleInit(this.retreiveChannels());
 };
 
 Client.prototype.onMumbleError = function(err) {
 	console.error(err);
+	this.command.onMumbleError(err);
 };
 
 Client.prototype.joinChannel = function(id, done) {

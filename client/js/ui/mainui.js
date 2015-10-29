@@ -8,14 +8,17 @@ var EventEmitter = require('events').EventEmitter;
 var ChannelTreeComponent = require("./views/channeltree");
 var ChannelTree = require("../../../shared/channelTree");
 //var ChatInput = require("./views/chatinput");
+var LogComponent = require("./views/log");
 
 var MainUI = function(container) {
 	var uiThis = this;
+	this.logList = [];
 	this.container = container;
 	this.componentClass = React.createClass({
 		getInitialState : function() {
 			return {
-				channels : null
+				channels : null,
+				log : uiThis.logList
 			};
 		},
 		render : function() {
@@ -26,7 +29,8 @@ var MainUI = function(container) {
 						<ChannelTreeComponent channels={this.state.channels} onChannelJoin={uiThis.onChannelJoin.bind(uiThis)}/>
 					</div>
 					<div className="col-md-6">
-
+						<h2>Log</h2>
+						<LogComponent log={this.state.log}/>
 					</div>
 				</div>
 			);
@@ -39,6 +43,20 @@ Util.inherits(MainUI, EventEmitter);
 
 MainUI.prototype.onChannelJoin = function(channel) {
 	this.emit("join-channel", channel);
+};
+
+MainUI.prototype.log = function(message) {
+	message.id = this.logList.length;
+	if(!message.date) {
+		message.date = new Date();
+	}
+	if(!message.origin) {
+		message.origin = "Server";
+	}
+	this.logList.push(message);
+	this.component.setState({
+		log : this.logList
+	});
 };
 
 MainUI.prototype.moveUser = function(userSession, oldChannel, newChannel) {

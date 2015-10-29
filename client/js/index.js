@@ -37,19 +37,33 @@ $(function(){
 	});
 
 	bumble.on('server-joined', function() {
-		ui = new MainUI(container);
-		ui.on("join-channel", function(channel) {
-			bumble.joinChannel(channel);
-		})
 	});
 
 	bumble.on("user-move", function(args) {
 		ui.moveUser(args.user, args.oldChannel, args.newChannel);
+		ui.log({
+			message : args.user + " moved from channel " + args.oldChannel + " to " + args.newChannel + ""
+		});
 	});
 
 	bumble.on('channels', function(channels) {
+		ui = new MainUI(container);
+		ui.on("join-channel", function(channel) {
+			bumble.joinChannel(channel);
+		})
 		console.log(ui);
 		ui.setChannels(channels);
+	});
+
+	bumble.on('mumble-error', function(reason) {
+		var text = "Unknown error.";
+		if(reason == 'permission') {
+			text = "Permission denied.";
+		}
+		ui.log({
+			type : 'danger',
+			message : "Mumble experienced an error: " + text
+		});
 	});
 
 	bumble.on('ready', function() {
