@@ -30,18 +30,17 @@ var Channel = React.createClass({
 		var openedClass, iconClass;
 		if(this.state.opened) {
 			openedClass = "channel opened";
-			iconClass = "indicator fa fa-chevron-circle-down";
+			iconClass = "indicator fa fa-folder-open";
 		}
 		else {
 			openedClass = "channel closed";
-			iconClass = "indicator fa fa-chevron-circle-right";
+			iconClass = "indicator fa fa-folder";
 		}
 		return (
 			<li className={openedClass}>
 				<div className="info row" onClick={this.toggleOpened}>
 					<div className="name col-md-8">
 						<i className={iconClass}></i>
-						<i className="icon fa fa-folder-open"></i> 
 						{this.props.channel.name}
 					</div>
 					<div className="buttons col-md-4">
