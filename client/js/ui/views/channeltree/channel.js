@@ -27,20 +27,21 @@ var Channel = React.createClass({
 		}).map(function(channel) {
 			return <Channel channel={channel} key={channel.id} onJoin={this.bubbleUpJoin}/>;
 		}.bind(this));
-		var openedClass, iconClass;
+		var openedClass, iconClass, suffix;
+		suffix = subChannels.length == 0 && subUsers.length == 0 ? "-o" : "";
 		if(this.state.opened) {
 			openedClass = "channel opened";
-			iconClass = "indicator fa fa-folder-open";
+			iconClass = "indicator fa fa-folder-open" + suffix;
 		}
 		else {
 			openedClass = "channel closed";
-			iconClass = "indicator fa fa-folder";
+			iconClass = "indicator fa fa-folder" + suffix;
 		}
 		return (
 			<li className={openedClass}>
-				<div className="info row" onClick={this.toggleOpened}>
+				<div className="info row">
 					<div className="name col-md-8">
-						<i className={iconClass}></i>
+						<i className={iconClass} onClick={this.toggleOpened}></i>
 						{this.props.channel.name}
 					</div>
 					<div className="buttons col-md-4">
