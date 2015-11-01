@@ -1,0 +1,39 @@
+ul.channeltree {
+	list-style-type: none;
+	i.icon {
+		padding-right: 6px;
+	}
+	li.channel {
+		.info {
+			.name {
+				i.indicator {
+					width: 1em;
+					margin-right: 1em;
+				}
+			}
+			.buttons {
+				text-align: right;
+			}
+		}
+		.user {
+			list-style-type: none;
+		}
+		.users {
+			list-style-type: none;
+			margin-left: 2em;
+		}
+		.channels {
+			
+		}
+	}
+	li.opened {
+		.users, .channels {
+			display : block;
+		}	
+	}
+	li.closed {
+		.users, .channels {
+			display : none;
+		}
+	}
+}
